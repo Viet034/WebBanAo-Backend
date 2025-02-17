@@ -1,4 +1,4 @@
-﻿using WebBanAoo.Models.ultility;
+﻿using WebBanAoo.Ultility;
 using static WebBanAoo.Models.Status.Status;
 
 namespace WebBanAoo.Models

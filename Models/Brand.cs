@@ -1,4 +1,4 @@
-﻿using WebBanAoo.Models.ultility;
+﻿using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Models;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace WebBanAoo.Models.ultility;
+namespace WebBanAoo.Ultility;
 
 public class BaseEntity
 {

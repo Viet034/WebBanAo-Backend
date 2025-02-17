@@ -4,11 +4,11 @@ using WebBanAoo.Mapper;
 using WebBanAoo.Mapper.impl;
 using WebBanAoo.Models;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
+
 using WebBanAoo.Service;
 using WebBanAoo.Service.impl;
 using System.Text.Json.Serialization;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,11 +64,6 @@ builder.Services.AddScoped(typeof(Validation<>));
 
 
 var app = builder.Build();
-
-
-
-
-
 
 
 // Configure the HTTP request pipeline.

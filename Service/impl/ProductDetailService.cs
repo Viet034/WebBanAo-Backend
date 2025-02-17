@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.ProductDetail;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -67,10 +66,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ProductDetailResponse> FindProductDetailByIdAsync(int id)
         {
-            var coId = _context.ProductDetail.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.ProductDetail.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -89,10 +88,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteProductDetailAsync(int id)
         {
-            var co = _context.ProductDetail.FirstOrDefault(co => co.Id == id);
+            var co = await _context.ProductDetail.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.ProductDetail.Remove(co);
             await _context.SaveChangesAsync();
@@ -112,7 +111,7 @@ namespace WebBanAoo.Service.impl
         public async Task<ProductDetailResponse> SoftDeleteProductDetailAsync(int id, Status.ProductDetailStatus newStatus)
         {
             var coId = await _context.ProductDetail.FindAsync(id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
 
             coId.Status = newStatus;
 
@@ -124,28 +123,26 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ProductDetailResponse> UpdateProductDetailAsync(int id, ProductDetailUpdate update)
         {
-            var coId = await _context.ProductDetail.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.ProductDetail.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
             coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
             coId.Price = await _validation.CheckAndUpdatePriceAsync(coId, coId.Price, update.Price, co => co.Price == update.Price);
+            coId.ProductId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ProductId, update.ProductId, co => co.ProductId == update.ProductId);
+            coId.ColorId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ColorId, update.ColorId, co => co.ColorId == update.ColorId);
+            coId.SizeId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
 
             var result = _mapper.UpdateToEntity(update);
             
             coId.Status = result.Status;
             
-            
-            coId.ProductId = result.ProductId;
-            coId.ColorId = result.ColorId;
-            coId.SizeId = result.SizeId;
             coId.CreateDate = result.CreateDate;
             coId.UpdateDate = result.UpdateDate;
             coId.CreatedBy = result.CreatedBy;
             coId.UpdateBy = result.UpdateBy;
-
 
             await _context.SaveChangesAsync();
 

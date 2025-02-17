@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Size;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -66,10 +65,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<SizeResponse> FindSizeByIdAsync(int id)
         {
-            var coId = _context.Sizes.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Sizes.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -87,10 +86,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteSizeAsync(int id)
         {
-            var co = _context.Sizes.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Sizes.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Sizes.Remove(co);
             await _context.SaveChangesAsync();
@@ -110,7 +109,7 @@ namespace WebBanAoo.Service.impl
         public async Task<SizeResponse> SoftDeleteSizeAsync(int id, Status.SizeStatus newStatus)
         {
             var coId = await _context.Sizes.FindAsync(id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
 
             coId.Status = newStatus;
 
@@ -122,13 +121,13 @@ namespace WebBanAoo.Service.impl
 
         public async Task<SizeResponse> UpdateSizeAsync(int id, SizeUpdate update)
         {
-            var coId = await _context.Sizes.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Sizes.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            
+           
             var result = _mapper.UpdateToEntity(update);
             
             coId.Status = result.Status;

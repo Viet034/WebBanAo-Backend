@@ -6,8 +6,7 @@ using WebBanAoo.Models.Status;
 using WebBanAoo.Models.DTO.Request.Product;
 using WebBanAoo.Models.DTO.Response;
 using static WebBanAoo.Models.Status.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -109,27 +108,27 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ProductResponse> UpdateProductAsync(int id, ProductUpdate update)
         {
-            var proId = await  _context.Products.FirstOrDefaultAsync(pro => pro.Id == id);
+            var proId = await  _context.Products.FindAsync(id);
             if (proId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             proId.Code = await _validation.CheckAndUpdateAPIAsync(proId, proId.Code, update.Code, co => co.Code == update.Code);
             proId.ProductName = await _validation.CheckAndUpdateAPIAsync(proId, proId.ProductName, update.ProductName, co => co.ProductName == update.ProductName);
             proId.Description = await _validation.CheckAndUpdateAPIAsync(proId, proId.Description, update.Description, co => co.Description == update.Description);
-            proId.Description = await _validation.CheckAndUpdateAPIAsync(proId, proId.Description, update.Description, co => co.Description == update.Description);
+            proId.CategoryId = await _validation.CheckAndUpdateQuantityAsync(proId, proId.CategoryId, update.CategoryId, co => co.CategoryId == update.CategoryId);
+            proId.BrandId = await _validation.CheckAndUpdateQuantityAsync(proId, proId.BrandId, update.BrandId, co => co.BrandId == update.BrandId);
 
             var result = _mapper.UpdateToEntity(update);
             
             
-            proId.Description = result.Description;
+            
             proId.CreateDate = result.CreateDate;
             proId.UpdateDate = result.UpdateDate;
             proId.CreatedBy = result.CreatedBy;
             proId.UpdateBy = result.UpdateBy;
             proId.Status = result.Status;
-            proId.CategoryId = result.CategoryId;
-            proId.BrandId = result.BrandId;
+            
             await _context.SaveChangesAsync();
 
             var response = _mapper.EntityToResponse(proId);
