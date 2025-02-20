@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Customer;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -41,6 +40,19 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CustomerResponse> CreateCustomerAsync(CustomerCreate create)
         {
+            if (!await _validation.IsValidEmail(create.Email))
+            {
+                throw new Exception("Email không hợp lệ, Vui lòng nhập đúng định dạng");
+            }
+            if (!await _validation.IsValidPassword(create.Password))
+            {
+                throw new Exception("Password không hợp lệ, Vui lòng nhập đúng định dạng");
+            }
+            if (!await _validation.IsValidPhone(create.Phone))
+            {
+                throw new Exception("Phone không hợp lệ, Vui lòng nhập đúng định dạng tối thiểu 10 số");
+            }
+
             Customer entity = _mapper.CreateToEntity(create);
 
             if (!string.IsNullOrEmpty(create.Code) && create.Code != "string")
@@ -52,7 +64,7 @@ namespace WebBanAoo.Service.impl
                 entity.Code = await CheckUniqueCodeAsync();
             }
 
-            while (await _context.Colors.AnyAsync(p => p.Code == entity.Code))
+            while (await _context.Customers.AnyAsync(p => p.Code == entity.Code))
             {
                 entity.Code = await CheckUniqueCodeAsync();
             }
@@ -66,10 +78,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CustomerResponse> FindCustomerByIdAsync(int id)
         {
-            var coId = _context.Customers.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Customers.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -87,10 +99,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteCustomerAsync(int id)
         {
-            var co = _context.Customers.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Customers.FindAsync(id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Customers.Remove(co);
             await _context.SaveChangesAsync();
@@ -102,7 +114,7 @@ namespace WebBanAoo.Service.impl
             var coKey = await _context.Customers    
                .FromSqlRaw("Select * from Customers where FullName like {0}", "%" + key + "%").ToListAsync();
 
-            if (coKey == null) throw new Exception($"Khong co Category ten {key} nao");
+            if (coKey == null) throw new Exception($"Khong co Customer ten {key} nao");
             var response = _mapper.ListEntityToResponse(coKey);
             return response;
         }
@@ -122,8 +134,8 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CustomerResponse> ChangeGenderAsync(int id, Status.Gender changeGender)
         {
-            var coId = await _context.Customers.FirstOrDefaultAsync(co => co.Id == id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            var coId = await _context.Customers.FindAsync( id);
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
             coId.Gender = changeGender;
             await _context.SaveChangesAsync();
             var response = _mapper.EntityToResponse(coId);
@@ -132,20 +144,20 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CustomerResponse> UpdateCustomerAsync(int id, CustomerUpdate update)
         {
-            var coId = await _context.Customers.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Customers.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
             coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
-            coId.Email = await _validation.CheckAndUpdateAPIAsync(coId, coId.Email, update.Email, co => co.Email == update.Email);
-            coId.Password = await _validation.CheckAndUpdateAPIAsync(coId, coId.Password, update.Password, co => co.Password == update.Password);
-            coId.Phone = await _validation.CheckAndUpdateAPIAsync(coId, coId.Phone, update.Phone, co => co.Phone == update.Phone);
+            coId.Phone = await _validation.ValidateAndUpdateAsync(coId, coId.Phone, update.Phone, co => co.Phone == update.Phone, isPhone: true);
+            coId.Email = await _validation.ValidateAndUpdateAsync(coId, coId.Email, update.Email, co => co.Email == update.Email, isEmail: true);
+            coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
             coId.Address = await _validation.CheckAndUpdateAPIAsync(coId, coId.Address, update.Address, co => co.Address == update.Address);
             coId.City = await _validation.CheckAndUpdateAPIAsync(coId, coId.City, update.City, co => co.City == update.City);
             coId.Image = await _validation.CheckAndUpdateAPIAsync(coId, coId.Image, update.Image, co => co.Image == update.Image);
-            coId.Dob = await _validation.CheckAndUpdateDOBAsync(coId, coId.Dob, update.Dob);
+            coId.Dob = await _validation.CheckAndUpdateDOBGeneralAsync(coId, coId.Dob, update.Dob);
 
             var result = _mapper.UpdateToEntity(update);
            

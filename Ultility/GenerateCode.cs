@@ -1,4 +1,4 @@
-﻿namespace WebBanAoo.Models.ultility;
+﻿namespace WebBanAoo.Ultility;
 
 public class GenerateCode
 {

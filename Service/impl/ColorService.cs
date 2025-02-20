@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Color;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -65,10 +64,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ColorResponse> FindProductColorByIdAsync(int id)
         {
-            var coId = _context.Colors.FirstOrDefault(co => co.Id == id);
+            var coId =await _context.Colors.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -86,10 +85,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteProductColorAsync(int id)
         {
-            var co = _context.Colors.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Colors.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Colors.Remove(co);
             await _context.SaveChangesAsync();
@@ -121,7 +120,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ColorResponse> UpdateProductColorAsync(int id, ColorUpdate update)
         {
-            var coId = await  _context.Colors.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await  _context.Colors.FindAsync(id);
             if (coId == null)
             {
                 throw new Exception($" Khong co Id {id} ton tai");

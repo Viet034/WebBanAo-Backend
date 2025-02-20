@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Voucher;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -66,7 +65,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<VoucherResponse> FindVoucherByIdAsync(int id)
         {
-            var coId = _context.Vouchers.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Vouchers.FindAsync( id);
             if (coId == null)
             {
                 throw new Exception($" Khong co Id {id} ton tai");
@@ -87,10 +86,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteVoucherAsync(int id)
         {
-            var co = _context.Vouchers.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Vouchers.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Vouchers.Remove(co);
             await _context.SaveChangesAsync();
@@ -110,7 +109,7 @@ namespace WebBanAoo.Service.impl
         public async Task<VoucherResponse> SoftDeleteVoucherAsync(int id, Status.VoucherStatus newStatus)
         {
             var coId = await _context.Vouchers.FindAsync(id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
 
             coId.Status = newStatus;
 
@@ -122,27 +121,25 @@ namespace WebBanAoo.Service.impl
 
         public async Task<VoucherResponse> UpdateVoucherAsync(int id, VoucherUpdate update)
         {
-            var coId = await _context.Vouchers.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Vouchers.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
             coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
             coId.Description = await _validation.CheckAndUpdateAPIAsync(coId, coId.Description, update.Description, co => co.Description == update.Description);
-            coId.StartDate = await _validation.CheckAndUpdateDateAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
-            coId.EndDate = await _validation.CheckAndUpdateDateAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
-            coId.EndDate = await _validation.CheckAndUpdateDateAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
-            coId.EndDate = await _validation.CheckAndUpdateDateAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
-            
+            coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
+            coId.EndDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
+            coId.DiscountValue = await _validation.CheckAndUpdatePriceAsync(coId, coId.DiscountValue, update.DiscountValue, co => co.DiscountValue == update.DiscountValue);
+            coId.MinimumOrderValue = await _validation.CheckAndUpdatePriceAsync(coId, coId.MinimumOrderValue, update.MinimumOrderValue, co => co.MinimumOrderValue == update.MinimumOrderValue);
+            coId.MaxDiscount = await _validation.CheckAndUpdatePriceAsync(coId, coId.MaxDiscount, update.MaxDiscount, co => co.MaxDiscount == update.MaxDiscount);
+            coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);
+
             var result = _mapper.UpdateToEntity(update);
             
             coId.Status = result.Status;
 
-            coId.Quantity = result.Quantity;
-            coId.DiscountValue = result.DiscountValue;
-            coId.MinimumOrderValue = result.MinimumOrderValue;
-            coId.MaxDiscount = result.MaxDiscount;
             coId.CreateDate = result.CreateDate;
             coId.UpdateDate = result.UpdateDate;
             coId.CreatedBy = result.CreatedBy;

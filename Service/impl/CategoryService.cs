@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Category;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -65,10 +64,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CategoryResponse> FindCategoryByIdAsync(int id)
         {
-            var coId = _context.Categories.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Categories.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -86,10 +85,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteCategoryAsync(int id)
         {
-            var co = _context.Categories.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Categories.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Categories.Remove(co);
             await _context.SaveChangesAsync();
@@ -121,10 +120,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<CategoryResponse> UpdateCategoryAsync(int id, CategoryUpdate update)
         {
-            var coId = await _context.Categories.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Categories.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             //check validation
             coId.Code = await _validation
@@ -135,7 +134,7 @@ namespace WebBanAoo.Service.impl
             
             coId.Description = await _validation
                 .CheckAndUpdateAPIAsync(coId, coId.Description, update.Description, cat => cat.Description == update.Description);
-
+             
             
             var result = _mapper.UpdateToEntity(update);
            

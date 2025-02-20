@@ -17,6 +17,5 @@ public class OrderDTO
     public string? Note { get; set; }
     [Required]
     public DateTime OrderDate { get; set; }
-    [Required]
-    public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    
 }

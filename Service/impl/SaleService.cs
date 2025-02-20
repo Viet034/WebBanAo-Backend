@@ -5,8 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Sale;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -76,7 +75,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<SaleResponse> FindSaleByIdAsync(int id)
         {
-            var coId = _context.Sales.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Sales.FindAsync( id);
             if (coId == null)
             {
                 throw new Exception($" Khong co Id {id} ton tai");
@@ -97,7 +96,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteSaleAsync(int id)
         {
-            var co = _context.Sales.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Sales.FindAsync( id);
             if (co == null)
             {
                 throw new Exception($" Khong co Id {id} ton tai");
@@ -132,15 +131,15 @@ namespace WebBanAoo.Service.impl
 
         public async Task<SaleResponse> UpdateSaleAsync(int id, SaleUpdate update)
         {
-            var coId = await _context.Sales.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Sales.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
             coId.SaleName = await _validation.CheckAndUpdateAPIAsync(coId, coId.SaleName, update.SaleName, co => co.SaleName == update.SaleName);
-            coId.StartDate = await _validation.CheckAndUpdateDateAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
-            coId.EndDate = await _validation.CheckAndUpdateDateAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
+            coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
+            coId.EndDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
             
             var result = _mapper.UpdateToEntity(update);
             

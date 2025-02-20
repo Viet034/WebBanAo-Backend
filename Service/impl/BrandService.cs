@@ -4,8 +4,7 @@ using WebBanAoo.Mapper;
 using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Brand;
 using WebBanAoo.Models.DTO.Response;
-using WebBanAoo.Models.ultility;
-using WebBanAoo.Models.Ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -66,10 +65,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<BrandResponse> FindBrandByIdAsync(int id)
         {
-            var coId = await  _context.Brands.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await  _context.Brands.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -87,10 +86,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteBrandAsync(int id)
         {
-            var co = await _context.Brands.FirstOrDefaultAsync(co => co.Id == id);
+            var co = await _context.Brands.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Brands.Remove(co);
             await _context.SaveChangesAsync();
@@ -109,10 +108,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<BrandResponse> UpdateBrandAsync(int id, BrandUpdate update)
         {
-            var coId = await _context.Brands.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Brands.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             //check validation
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, b => b.Code == update.Code);

@@ -19,8 +19,8 @@ namespace WebBanAoo.Mapper.impl
             cus.Email = create.Email;
             cus.Password = create.Password;
             cus.Phone = create.Phone;
-            cus.Address = create.Phone;
-            cus.City = create.Phone;
+            cus.Address = create.Address;
+            cus.City = create.City;
             cus.Image = create.Image;
             cus.CreatedBy = "System";
             cus.CreateDate = DateTime.Now.AddHours(7);
@@ -42,8 +42,8 @@ namespace WebBanAoo.Mapper.impl
             cus.Email = delete.Email;
             cus.Password = delete.Password;
             cus.Phone = delete.Phone;
-            cus.Address = delete.Phone;
-            cus.City = delete.Phone;
+            cus.Address = delete.Address;
+            cus.City = delete.City;
             cus.Image = delete.Image;
             cus.CreatedBy = "System";
             cus.CreateDate = DateTime.Now.AddHours(7);
@@ -64,15 +64,15 @@ namespace WebBanAoo.Mapper.impl
             response.Email = entity.Email;
             response.Password = entity.Password;
             response.Phone = entity.Phone;
-            response.Address = entity.Phone;
-            response.City = entity.Phone;
+            response.Address = entity.Address;
+            response.City = entity.City;
             response.Image = entity.Image;
             return response;
         }
 
         public IEnumerable<CustomerResponse> ListEntityToResponse(IEnumerable<Customer> entities)
         {
-            throw new NotImplementedException();
+            return entities.Select(x => EntityToResponse(x)).ToList();
         }
 
         public Customer UpdateToEntity(CustomerUpdate update)
@@ -85,8 +85,8 @@ namespace WebBanAoo.Mapper.impl
             cus.Email = update.Email;
             cus.Password = update.Password;
             cus.Phone = update.Phone;
-            cus.Address = update.Phone;
-            cus.City = update.Phone;
+            cus.Address = update.Address;
+            cus.City = update.City;
             cus.Image = update.Image;
             cus.CreatedBy = "System";
             cus.CreateDate = DateTime.Now.AddHours(7);

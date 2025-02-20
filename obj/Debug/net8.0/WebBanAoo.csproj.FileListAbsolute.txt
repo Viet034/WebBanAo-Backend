@@ -214,3 +214,4 @@ F:\Solution-VsCode\WebBanAoo-Backend\obj\Debug\net8.0\refint\WebBanAoo.dll
 F:\Solution-VsCode\WebBanAoo-Backend\obj\Debug\net8.0\WebBanAoo.pdb
 F:\Solution-VsCode\WebBanAoo-Backend\obj\Debug\net8.0\WebBanAoo.genruntimeconfig.cache
 F:\Solution-VsCode\WebBanAoo-Backend\obj\Debug\net8.0\ref\WebBanAoo.dll
+F:\Solution-VsCode\WebBanAoo-Backend\obj\Debug\net8.0\WebBanAoo.sourcelink.json

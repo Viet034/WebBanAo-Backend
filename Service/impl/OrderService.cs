@@ -5,7 +5,7 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Order;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
+using WebBanAoo.Ultility;
 
 namespace WebBanAoo.Service.impl
 {
@@ -13,11 +13,13 @@ namespace WebBanAoo.Service.impl
     {
         private readonly ApplicationDbContext _context;
         private IOrderMapper _mapper;
+        private readonly Validation<Order> _validation;
 
-        public OrderService(ApplicationDbContext context, IOrderMapper mapper)
+        public OrderService(ApplicationDbContext context, IOrderMapper mapper, Validation<Order> validation)
         {
             _context = context;
             _mapper = mapper;
+            _validation = validation;
         }
 
         public async Task<string> CheckUniqueCodeAsync()
@@ -58,10 +60,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<OrderResponse> FindOrderByIdAsync(int id)
         {
-            var coId = _context.Orders.FirstOrDefault(co => co.Id == id);
+            var coId = await  _context.Orders.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -79,10 +81,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteOrderAsync(int id)
         {
-            var co = _context.Orders.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Orders.FindAsync( id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Orders.Remove(co);
             await _context.SaveChangesAsync();
@@ -114,34 +116,21 @@ namespace WebBanAoo.Service.impl
 
         public async Task<OrderResponse> UpdateOrderAsync(int id, OrderUpdate update)
         {
-            var coId = await _context.Orders.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Orders.FindAsync( id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
-            if (!string.IsNullOrEmpty(update.Code) && update.Code != "string" && update.Code != coId.Code)
-            {
-                bool isExist = await _context.Orders.AnyAsync(p => p.Code == update.Code);
-                if (isExist)
-                {
-                    throw new Exception();
-                }
-                coId.Code = update.Code;
-            }
-            else
-            {
-                update.Code = coId.Code;
-            }
+            coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
+            coId.Note = await _validation.CheckAndUpdateAPIAsync(coId, coId.Note, update.Note, co => co.Note == update.Note);
+            coId.InitialTotalAmount = await _validation.CheckAndUpdatePriceAsync(coId, coId.InitialTotalAmount, update.InitialTotalAmount, co => co.InitialTotalAmount == update.InitialTotalAmount);
+            coId.TotalAmount = await _validation.CheckAndUpdatePriceAsync(coId, coId.TotalAmount, update.TotalAmount, co => co.TotalAmount == update.TotalAmount);
+            
             var result = _mapper.UpdateToEntity(update);
             
             coId.Status = result.Status;
-            coId.InitialTotalAmount = result.InitialTotalAmount;
-            coId.TotalAmount = result.TotalAmount;
+            
             coId.OrderDate = result.OrderDate;
-            coId.CustomerId = result.CustomerId;
-            coId.Note = result.Note;
-            coId.EmployeeId = result.EmployeeId;
-            coId.VoucherId = result.VoucherId;
             coId.CreateDate = result.CreateDate;
             coId.UpdateDate = result.UpdateDate;
             coId.CreatedBy = result.CreatedBy;

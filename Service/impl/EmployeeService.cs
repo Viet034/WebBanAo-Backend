@@ -5,7 +5,8 @@ using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Employee;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
-using WebBanAoo.Models.ultility;
+using WebBanAoo.Ultility;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace WebBanAoo.Service.impl
 {
@@ -13,11 +14,13 @@ namespace WebBanAoo.Service.impl
     {
         private readonly ApplicationDbContext _context;
         private IEmployeeMapper _mapper;
+        private readonly Validation<Employee> _validation;
 
-        public EmployeeService(ApplicationDbContext context, IEmployeeMapper mapper)
+        public EmployeeService(ApplicationDbContext context, IEmployeeMapper mapper, Validation<Employee> validation)
         {
             _context = context;
             _mapper = mapper;
+            _validation = validation;
         }
 
         
@@ -40,8 +43,23 @@ namespace WebBanAoo.Service.impl
 
         public async Task<EmployeeResponse> CreateEmployeeAsync(EmployeeCreate create)
         {
+            //Check Email, Password
+            if (!await _validation.IsValidEmail(create.Email))
+            {
+                throw new Exception("Email không hợp lệ, Vui lòng nhập đúng định dạng 'vidu@gmail.com' ");
+            }
+            if (!await _validation.IsValidPassword(create.Password))
+            {
+                throw new Exception("Password không hợp lệ, Password cần chứa ít nhất 1 chữ cái viết hoa, 1 kí tự đặc biệt, tối thiểu chứa 6 kí tự");
+            }
+            if(!await _validation.IsValidPhone(create.Phone))
+            {
+                throw new Exception("Phone không hợp lệ, Vui lòng nhập đúng định dạng tối thiểu 10 số");
+            }
+
             Employee entity = _mapper.CreateToEntity(create);
 
+            //Check trùng Code
             if (string.IsNullOrEmpty(entity.Code) || entity.Code == "string")
             {
                 entity.Code = await CheckUniqueCodeAsync();
@@ -60,10 +78,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<EmployeeResponse> FindEmployeeByIdAsync(int id)
         {
-            var coId = _context.Employees.FirstOrDefault(co => co.Id == id);
+            var coId = await _context.Employees.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
@@ -81,10 +99,10 @@ namespace WebBanAoo.Service.impl
 
         public async Task<bool> HardDeleteEmployeeAsync(int id)
         {
-            var co = _context.Employees.FirstOrDefault(co => co.Id == id);
+            var co = await _context.Employees.FindAsync(id);
             if (co == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             _context.Employees.Remove(co);
             await _context.SaveChangesAsync();
@@ -104,7 +122,7 @@ namespace WebBanAoo.Service.impl
         public async Task<EmployeeResponse> SoftDeleteEmployeeAsync(int id, Status.EmployeeStatus newStatus)
         {
             var coId = await _context.Employees.FindAsync(id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
 
             coId.Status = newStatus;
 
@@ -115,8 +133,8 @@ namespace WebBanAoo.Service.impl
         }
         public async Task<EmployeeResponse> ChangeGenderAsync(int id, Status.Gender changeGender)
         {
-            var coId = await _context.Employees.FirstOrDefaultAsync(co => co.Id == id);
-            if (coId == null) throw new Exception($"Khong co Id {id} ton tai");
+            var coId = await _context.Employees.FindAsync(id);
+            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
             coId.Gender = changeGender;
             await _context.SaveChangesAsync();
             var response = _mapper.EntityToResponse(coId);
@@ -124,38 +142,32 @@ namespace WebBanAoo.Service.impl
         }
         public async Task<EmployeeResponse> UpdateEmployeeAsync(int id, EmployeeUpdate update)
         {
-            var coId = await _context.Employees.FirstOrDefaultAsync(co => co.Id == id);
+            var coId = await _context.Employees.FindAsync(id);
             if (coId == null)
             {
-                throw new Exception($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
-            if (!string.IsNullOrEmpty(update.Code) && update.Code != "string" && update.Code != coId.Code)
-            {
-                bool isExist = await _context.Employees.AnyAsync(p => p.Code == update.Code);
-                if (isExist)
-                {
-                    throw new Exception();
-                }
-                coId.Code = update.Code;
-            }
-            else
-            {
-                update.Code = coId.Code;
-            }
-            var result = _mapper.UpdateToEntity(update);
+
+            coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
+            coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
+            coId.Address = await _validation.CheckAndUpdateAPIAsync(coId, coId.Address, update.Address, co => co.Address == update.Address);
+            coId.Country = await _validation.CheckAndUpdateAPIAsync(coId, coId.Country, update.Country, co => co.Country == update.Country);
+            coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.StartDate, true);
+            coId.EndDate = await _validation.CheckAndUpdateDateEmployeeAsync(coId, coId.EndDate, update.EndDate, coId.EndDate, false);
+            coId.Dob = await _validation.CheckAndUpdateDOBGeneralAsync(coId, coId.Dob, update.Dob);
+            coId.Phone = await _validation.ValidateAndUpdateAsync(coId, coId.Phone, update.Phone, co => co.Phone == update.Phone, isPhone: true);
+            coId.Email = await _validation.ValidateAndUpdateAsync(coId, coId.Email, update.Email, co => co.Email == update.Email, isEmail: true);
+            coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
             
-            coId.FullName = result.FullName;
-            coId.Dob = result.Dob;
+            
+            var result = _mapper.UpdateToEntity(update);
+
+
             coId.Gender = result.Gender;
-            coId.Email = result.Email;
-            coId.Password = result.Password;
-            coId.Phone = result.Phone;
-            coId.Address = result.Address;
-            coId.Country = result.Country;
+            
             coId.Image = result.Image;
             coId.Status = result.Status;
-            coId.StartDate = result.StartDate;
-            coId.EndDate = result.EndDate;
+            
             coId.CreateDate = result.CreateDate;
             coId.UpdateDate = result.UpdateDate;
             coId.CreatedBy = result.CreatedBy;

@@ -11,12 +11,8 @@ public class ProductDTO
     [Required(ErrorMessage = "Product Name is Missing")]
     public string ProductName { get; set; }
     public string Description { get; set; }
-    [Required]
-    public DateTime CreateDate { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdateDate { get; set; }
-    [Required]
-    public string CreatedBy { get; set; }
-    public string? UpdateBy { get; set; }
+    
+
     [EnumDataType(typeof(ProductStatus))]
     public ProductStatus Status { get; set; } = ProductStatus.Available;
     [Required]
