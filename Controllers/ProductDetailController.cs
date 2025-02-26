@@ -36,7 +36,7 @@ namespace WebBanAoo.Controllers
             }
         }
 
-        [HttpPost("GetAll")]
+        [HttpGet("GetAll")]
         [ProducesResponseType(typeof(IEnumerable<ProductDetail>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult<IEnumerable<ProductDetail>>> GetAll()

@@ -9,6 +9,10 @@ using WebBanAoo.Service;
 using WebBanAoo.Service.impl;
 using System.Text.Json.Serialization;
 using WebBanAoo.Ultility;
+using Service.impl;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +57,8 @@ builder.Services.AddScoped<ISizeMapper, SizeMapper>();
 builder.Services.AddScoped<ISizeService, SizeService>();
 builder.Services.AddScoped<IVoucherMapper, VoucherMapper>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
+builder.Services.AddScoped<IProductImageMapper, ProductImageMapper>();
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
 //Chuy?n ??i enum 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -62,9 +68,50 @@ builder.Services.AddControllers()
 
 builder.Services.AddScoped(typeof(Validation<>));
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ICustomPasswordHasher, CustomPasswordHasher>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+//  CORS service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()     //  origin
+                .AllowAnyMethod()      //  HTTP methods
+                .AllowAnyHeader();     //  headers
+        });
+});
+
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -62,11 +62,13 @@ namespace WebBanAoo.Mapper.impl
             response.Status = entity.Status;
             response.Gender = entity.Gender;
             response.Email = entity.Email;
-            response.Password = entity.Password;
+            
             response.Phone = entity.Phone;
             response.Address = entity.Address;
             response.City = entity.City;
             response.Image = entity.Image;
+            response.RefreshToken = entity.RefreshToken;
+            response.RefreshTokenExpiryTime = entity.RefreshTokenExpiryTime;
             return response;
         }
 

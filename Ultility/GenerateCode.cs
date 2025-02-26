@@ -83,5 +83,10 @@ public class GenerateCode
         int vouRand = random.Next(100000, 999999);
         return "VOU" + vouRand;
     }
+    public static string GenerateProductImageCode()
+    {
 
+        int proImage = random.Next(100000, 999999);
+        return "PRDI" + proImage;
+    }
 }

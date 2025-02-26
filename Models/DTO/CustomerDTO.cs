@@ -27,4 +27,6 @@ public class CustomerDTO
     [Required]
     public string City { get; set; }
     public string? Image { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
 }

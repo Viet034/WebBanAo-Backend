@@ -324,6 +324,8 @@ namespace WebBanAoo.Data
                 entity.Property(cus => cus.UpdateDate).HasMaxLength(100);
                 entity.Property(cus => cus.CreatedBy).IsRequired().HasMaxLength(100);
                 entity.Property(cus => cus.UpdateBy).HasMaxLength(100);
+                entity.Property(cus => cus.RefreshToken).HasMaxLength(100);
+                entity.Property(cus => cus.RefreshTokenExpiryTime);
 
                 entity.HasOne(c => c.Cart)
                 .WithOne(cus => cus.Customer)
@@ -422,6 +424,8 @@ namespace WebBanAoo.Data
                 entity.Property(emp => emp.UpdateDate).HasMaxLength(100);
                 entity.Property(emp => emp.CreatedBy).IsRequired().HasMaxLength(100);
                 entity.Property(emp => emp.UpdateBy).HasMaxLength(100);
+                entity.Property(emp => emp.RefreshToken).HasMaxLength(100);
+                entity.Property(emp => emp.RefreshTokenExpiryTime);
 
                 entity.HasMany(o => o.Orders)
                 .WithOne(emp => emp.Employee)

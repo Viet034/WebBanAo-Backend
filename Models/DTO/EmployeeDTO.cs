@@ -30,4 +30,7 @@ public class EmployeeDTO
     [Required]
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
 }

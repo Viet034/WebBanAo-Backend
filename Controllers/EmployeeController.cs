@@ -4,12 +4,13 @@ using WebBanAoo.Models.DTO.Request.Employee;
 using WebBanAoo.Models;
 using System.Net;
 using static WebBanAoo.Models.Status.Status;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-
+[Authorize(Roles = "Admin, Employee")]
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeService _service;

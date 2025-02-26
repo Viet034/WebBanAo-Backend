@@ -23,6 +23,7 @@ namespace WebBanAoo.Mapper.impl
             emp.Country = create.Country;
             emp.StartDate = create.StartDate;
             emp.EndDate = create.EndDate;
+            
             emp.CreatedBy = "System";
             emp.CreateDate = DateTime.Now.AddHours(7);
             emp.UpdateDate = DateTime.Now.AddHours(7);
@@ -64,12 +65,14 @@ namespace WebBanAoo.Mapper.impl
             response.Gender = entity.Gender;
             response.Image = entity.Image;
             response.Email = entity.Email;
-            response.Password = entity.Password;
+            
             response.Phone = entity.Phone;
             response.Address = entity.Address;
             response.Country = entity.Country;
             response.StartDate = entity.StartDate;
             response.EndDate = entity.EndDate;
+            response.RefreshToken = entity.RefreshToken;
+            response.RefreshTokenExpiryTime = entity.RefreshTokenExpiryTime;
             return response;
         }
 

@@ -8,6 +8,8 @@ namespace WebBanAoo.Service
     {
         public Task<IEnumerable<ProductResponse>> GetAllProductsAsync();
         public Task<IEnumerable<ProductResponse>> SearchByKeyAsync(string key);
+        public Task<IEnumerable<ProductResponse>> GetProductByCategoryIdAsync(int id);
+        public Task<IEnumerable<ProductResponse>> GetProductByBrandIdAsync(int id);
         public Task<ProductResponse> UpdateProductAsync(int id, ProductUpdate update);
         public Task<ProductResponse> CreateProductAsync(ProductCreate create);
         public Task<bool> HardDeleteProductAsync(int id);

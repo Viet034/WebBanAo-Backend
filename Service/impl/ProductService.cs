@@ -149,6 +149,26 @@ namespace WebBanAoo.Service.impl
             return response;
         }
 
-        
+        public async Task<IEnumerable<ProductResponse>> GetProductByCategoryIdAsync(int id)
+        {
+            var tId = await _context.Products.Where(pro => pro.CategoryId == id).ToListAsync();
+            if (!tId.Any())
+            {
+                throw new Exception($"Không có sản phẩm nào chứa CategoryId {id}");
+            }
+            var response = _mapper.ListEntityToResponse(tId);
+            return response;
+        }
+
+        public async Task<IEnumerable<ProductResponse>> GetProductByBrandIdAsync(int id)
+        {
+            var tId = await _context.Products.Where(pro => pro.BrandId == id).ToListAsync();
+            if (!tId.Any())
+            {
+                throw new Exception($"Không có sản phẩm nào chứa BrandId {id}");
+            }
+            var response = _mapper.ListEntityToResponse(tId);
+            return response;
+        }
     }
 }

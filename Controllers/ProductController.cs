@@ -83,6 +83,37 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("find-product-byCategoryId/{id}")]
+    [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    public async Task<IActionResult> FindProductByCategoryId(int id)
+    {
+        try
+        {
+            var response = await _service.GetProductByCategoryIdAsync(id);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("find-product-byBrandId/{id}")]
+    [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    public async Task<IActionResult> FindProductByBrandId(int id)
+    {
+        try
+        {
+            var response = await _service.GetProductByBrandIdAsync(id);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
 
     [HttpPut("Update/{id}")]

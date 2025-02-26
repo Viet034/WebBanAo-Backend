@@ -4,10 +4,12 @@ using WebBanAoo.Service;
 using System.Net;
 using WebBanAoo.Models.DTO.Request.Customer;
 using static WebBanAoo.Models.Status.Status;
+using Microsoft.AspNetCore.Authorization;
 namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
+[Authorize]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _service;

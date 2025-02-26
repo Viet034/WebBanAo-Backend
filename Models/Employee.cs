@@ -17,6 +17,9 @@ public class Employee : BaseEntity
     public string Country { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     public virtual ICollection<Employee_Role> Employee_Roles { get; set; } = new List<Employee_Role>();
 }
