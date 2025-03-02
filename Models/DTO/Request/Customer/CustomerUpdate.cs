@@ -15,7 +15,7 @@ public class CustomerUpdate
     public CustomerStatus Status { get; set; } = CustomerStatus.Active;
     public string Address { get; set; }
     public string City { get; set; }
-    public string Image { get; set; }
+    public string? Image { get; set; }
 
     public CustomerUpdate(int id, string code, string fullName, DateTime dob, Gender gender, string email, string password, string phone, CustomerStatus status, string address, string city, string image)
     {

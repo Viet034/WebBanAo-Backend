@@ -9,7 +9,7 @@ public class Employee : BaseEntity
     public EmployeeStatus Status { get; set; } = EmployeeStatus.Working;
     public DateTime Dob {  get; set; }
     public Gender Gender { get; set; } = Gender.Male;
-    public string Image {  get; set; }
+    public string? Image {  get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
     public string Phone { get; set; }

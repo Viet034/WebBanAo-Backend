@@ -15,7 +15,7 @@ public class CustomerResponse
     public CustomerStatus Status { get; set; } = CustomerStatus.Active;
     public string Address { get; set; }
     public string City { get; set; }
-    public string Image { get; set; }
+    public string? Image { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
 

@@ -9,7 +9,7 @@ namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-[Authorize]
+[Authorize(Roles = "Admin, Employee")]
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _service;

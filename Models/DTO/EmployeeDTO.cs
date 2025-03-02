@@ -16,7 +16,7 @@ public class EmployeeDTO
     public DateTime Dob { get; set; }
     [EnumDataType(typeof(Gender))]
     public Gender Gender { get; set; } = Gender.Male;
-    public string Image { get; set; }
+    public string? Image { get; set; }
     [Required]
     public string Email { get; set; }
     [Required]
