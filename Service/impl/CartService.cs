@@ -5,7 +5,7 @@ using WebBanAoo.Models.DTO.Request.Cart;
 using WebBanAoo.Models.DTO.Response.Cart;
 using WebBanAoo.Models.Mapper;
 
-namespace WebBanAoo.Service;
+namespace WebBanAoo.Service.impl;
 
 public class CartService : ICartService
 {
