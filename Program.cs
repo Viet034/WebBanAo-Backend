@@ -63,6 +63,8 @@ builder.Services.AddScoped<IProductImageMapper, ProductImageMapper>();
 builder.Services.AddScoped<IProductImageService, ProductImageService>();
 builder.Services.AddScoped<ICartMapper, CartMapper>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICustomerVoucherMapper, CustomerVoucherMapper>();
+builder.Services.AddScoped<ICustomerVoucherService, CustomerVoucherService>();
 builder.Services.AddScoped(typeof(Validation<>));
 //Chuy?n ??i enum 
 builder.Services.AddControllers()
