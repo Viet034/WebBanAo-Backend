@@ -15,6 +15,10 @@ public class ProductCreate
     public int CategoryId { get; set; }
     public int BrandId { get; set; }
 
+    public ProductCreate()
+    {
+    }
+
     public ProductCreate(string code, string productName, string description, DateTime createDate, DateTime? updateDate, string createdBy, string? updateBy, ProductStatus status, int categoryId, int brandId)
     {
         Code = code;

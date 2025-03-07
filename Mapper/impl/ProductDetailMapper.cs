@@ -60,11 +60,11 @@ namespace WebBanAoo.Mapper.impl
             return entities.Select(x => EntityToResponse(x)).ToList();
         }
 
-        public ProductDetail UpdateToEntity(ProductDetailUpdate update)
+        public ProductDetail UpdateToEntity(ProductDetail prod, ProductDetailUpdate update)
         {
             prod.Code = update.Code;
             prod.Name = update.Name;
-            prod.Price = update.Price;
+            prod.Price = update.Price != 0 ? update.Price : prod.Price;
             prod.Status = update.Status;
             prod.ProductId = update.ProductId;
             prod.ColorId = update.ColorId;

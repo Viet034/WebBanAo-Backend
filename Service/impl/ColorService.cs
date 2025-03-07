@@ -127,8 +127,8 @@ namespace WebBanAoo.Service.impl
             }
 
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            coId.ColorName = await _validation.CheckAndUpdateAPIAsync(coId, coId.ColorName, update.ColorName, co => co.ColorName == update.ColorName);
-            
+            //coId.ColorName = await _validation.CheckAndUpdateAPIAsync(coId, coId.ColorName, update.ColorName, co => co.ColorName == update.ColorName);
+            coId.ColorName = update.ColorName;
             var result = _mapper.UpdateToEntity(update);
             
             

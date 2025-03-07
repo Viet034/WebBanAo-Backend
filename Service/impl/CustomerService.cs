@@ -150,18 +150,19 @@ namespace WebBanAoo.Service.impl
                 throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
+            //coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
+            coId.FullName = update.FullName;
             coId.Phone = await _validation.ValidateAndUpdateAsync(coId, coId.Phone, update.Phone, co => co.Phone == update.Phone, isPhone: true);
             coId.Email = await _validation.ValidateAndUpdateAsync(coId, coId.Email, update.Email, co => co.Email == update.Email, isEmail: true);
-            coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
+            //coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
             coId.Address = await _validation.CheckAndUpdateAPIAsync(coId, coId.Address, update.Address, co => co.Address == update.Address);
             coId.City = await _validation.CheckAndUpdateAPIAsync(coId, coId.City, update.City, co => co.City == update.City);
             coId.Image = await _validation.CheckAndUpdateAPIAsync(coId, coId.Image, update.Image, co => co.Image == update.Image);
             coId.Dob = await _validation.CheckAndUpdateDOBGeneralAsync(coId, coId.Dob, update.Dob);
-
+            coId.Gender = update.Gender;
             var result = _mapper.UpdateToEntity(update);
-           
-            coId.Gender = result.Gender;
+
+            //coId.Gender = result.Gender;
             coId.Status = result.Status;
             coId.CreateDate = result.CreateDate;
             coId.UpdateDate = result.UpdateDate;

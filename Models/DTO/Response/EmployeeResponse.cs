@@ -15,7 +15,7 @@ public class EmployeeResponse
     
     public string Phone { get; set; }
     public string Address { get; set; }
-    public string Country { get; set; }
+    public string City { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string? RefreshToken { get; set; }
@@ -26,7 +26,7 @@ public class EmployeeResponse
     {
     }
 
-    public EmployeeResponse(int employeeId, string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string phone, string address, string country, DateTime startDate, DateTime? endDate)
+    public EmployeeResponse(int employeeId, string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string phone, string address, string City, DateTime startDate, DateTime? endDate)
     {
         Id = employeeId;
         Code = code;
@@ -39,7 +39,7 @@ public class EmployeeResponse
         
         Phone = phone;
         Address = address;
-        Country = country;
+        City = City;
         StartDate = startDate;
         EndDate = endDate;
     }

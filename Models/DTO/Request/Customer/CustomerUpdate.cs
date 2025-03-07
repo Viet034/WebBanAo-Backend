@@ -17,6 +17,10 @@ public class CustomerUpdate
     public string City { get; set; }
     public string? Image { get; set; }
 
+    public CustomerUpdate()
+    {
+    }
+
     public CustomerUpdate(int id, string code, string fullName, DateTime dob, Gender gender, string email, string password, string phone, CustomerStatus status, string address, string city, string image)
     {
         Id = id;

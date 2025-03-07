@@ -11,7 +11,7 @@ public class Voucher : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int Quantity { get; set; }
-    public decimal DiscountValue { get; set; } //Giá trị giảm giá
+    public int DiscountValue { get; set; } //Giá trị giảm giá
     public decimal MinimumOrderValue { get; set; } //Giá trị đơn tối thiểu
     public decimal MaxDiscount { get; set; } //Giảm tối đa
     public virtual ICollection<Customer_Voucher> Customer_Vouchers { get; set; } = new List<Customer_Voucher>();

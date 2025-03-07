@@ -1,13 +1,13 @@
 ﻿using static WebBanAoo.Models.Status.Status;
 
-namespace WebBanAoo.Models;
+namespace WebBanAoo.Models.DTO;
 
-public class Customer_Voucher
+public class CustomerVoucherDTO
 {
     public int Id { get; set; }
     public CustomerVoucherStatus Status { get; set; } = CustomerVoucherStatus.Active;
     public int CustomerId { get; set; }
-    public virtual Customer Customer { get; set; }
+    
     public int VoucherId { get; set; }
-    public virtual Voucher Voucher { get; set; }
+    
 }

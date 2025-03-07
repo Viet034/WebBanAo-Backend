@@ -417,7 +417,7 @@ namespace WebBanAoo.Data
                 entity.Property(emp => emp.Password).IsRequired().HasMaxLength(100);
                 entity.Property(emp => emp.Phone).IsRequired().HasMaxLength(100);
                 entity.Property(emp => emp.Address).IsRequired().HasMaxLength(100);
-                entity.Property(emp => emp.Country).IsRequired().HasMaxLength(100);
+                entity.Property(emp => emp.City).IsRequired().HasMaxLength(100);
                 entity.Property(emp => emp.StartDate).IsRequired().HasMaxLength(100);
                 entity.Property(emp => emp.EndDate);
                 entity.Property(emp => emp.CreateDate).IsRequired().HasMaxLength(100);

@@ -20,7 +20,7 @@ namespace WebBanAoo.Models.DTO.Response
    
         public int Quantity { get; set; }
      
-        public decimal DiscountValue { get; set; } //Giá trị giảm giá
+        public int DiscountValue { get; set; } //Giá trị giảm giá
      
         public decimal MinimumOrderValue { get; set; } //Giá trị đơn tối thiểu
      
@@ -30,7 +30,7 @@ namespace WebBanAoo.Models.DTO.Response
         {
         }
 
-        public VoucherResponse(int id, string code, string name, string description, VoucherStatus status, DateTime startDate, DateTime endDate, int quantity, decimal discountValue, decimal minimumOrderValue, decimal maxDiscount)
+        public VoucherResponse(int id, string code, string name, string description, VoucherStatus status, DateTime startDate, DateTime endDate, int quantity, int discountValue, decimal minimumOrderValue, decimal maxDiscount)
         {
             Id = id;
             Code = code;

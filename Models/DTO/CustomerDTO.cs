@@ -11,7 +11,7 @@ public class CustomerDTO
     [Required(ErrorMessage = "Customer Name is Missing")]
     public string FullName { get; set; }
     [Required]
-    public DateTime Dob { get; set; }
+    public DateTime? Dob { get; set; }
     [EnumDataType(typeof(Gender))]
     public Gender Gender { get; set; } = Gender.Male;
     [Required]

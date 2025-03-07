@@ -16,6 +16,10 @@ public class CustomerCreate
     public string City { get; set; }
     public string? Image { get; set; }
 
+    public CustomerCreate()
+    {
+    }
+
     public CustomerCreate(string code, string fullName, DateTime dob, Gender gender, string email, string password, string phone, CustomerStatus status, string address, string city, string? image)
     {
         Code = code;

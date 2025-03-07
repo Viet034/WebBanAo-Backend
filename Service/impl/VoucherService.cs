@@ -109,9 +109,23 @@ namespace WebBanAoo.Service.impl
         public async Task<VoucherResponse> SoftDeleteVoucherAsync(int id, Status.VoucherStatus newStatus)
         {
             var coId = await _context.Vouchers.FindAsync(id);
-            if (coId == null) throw new KeyNotFoundException($"Khong co Id {id} ton tai");
+            if (coId == null) throw new KeyNotFoundException($"Không có Id {id} tồn tại");
 
             coId.Status = newStatus;
+
+            // Cập nhật trạng thái của tất cả Customer_Voucher liên quan
+            var relatedCustomerVouchers = await _context.Customer_Vouchers
+                .Where(cv => cv.VoucherId == id)
+                .ToListAsync();
+
+            foreach (var customerVoucher in relatedCustomerVouchers)
+            {
+                // Nếu Voucher không còn active, set Customer_Voucher thành Inactive
+                if (newStatus != Status.VoucherStatus.Active)
+                {
+                    customerVoucher.Status = Status.CustomerVoucherStatus.Expired;
+                }
+            }
 
             await _context.SaveChangesAsync();
 
@@ -127,11 +141,12 @@ namespace WebBanAoo.Service.impl
                 throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
+            //coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
+            coId.Name = update.Name;
             coId.Description = await _validation.CheckAndUpdateAPIAsync(coId, coId.Description, update.Description, co => co.Description == update.Description);
             coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
             coId.EndDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
-            coId.DiscountValue = await _validation.CheckAndUpdatePriceAsync(coId, coId.DiscountValue, update.DiscountValue, co => co.DiscountValue == update.DiscountValue);
+            coId.DiscountValue = await _validation.CheckAndUpdateQuantityAsync(coId, coId.DiscountValue, update.DiscountValue, co => co.DiscountValue == update.DiscountValue);
             coId.MinimumOrderValue = await _validation.CheckAndUpdatePriceAsync(coId, coId.MinimumOrderValue, update.MinimumOrderValue, co => co.MinimumOrderValue == update.MinimumOrderValue);
             coId.MaxDiscount = await _validation.CheckAndUpdatePriceAsync(coId, coId.MaxDiscount, update.MaxDiscount, co => co.MaxDiscount == update.MaxDiscount);
             coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);

@@ -5,11 +5,13 @@ using WebBanAoo.Models;
 using System.Net;
 using static WebBanAoo.Models.Status.Status;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
+// [Authorize] // Tạm thời comment lại để kiểm tra
 [Authorize(Roles = "Admin, Employee")]
 public class EmployeeController : ControllerBase
 {
@@ -89,7 +91,7 @@ public class EmployeeController : ControllerBase
     [HttpPut("Update/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> UpdateProduct([FromBody] EmployeeUpdate update, int id)
+    public async Task<IActionResult> UpdateEmployee([FromBody] EmployeeUpdate update, int id)
     {
         try
         {
@@ -136,5 +138,17 @@ public class EmployeeController : ControllerBase
             return BadRequest(ex.ToString());
         }
     }
+
+    //[HttpGet("test-auth")]
+    //[Authorize] // Giữ lại Authorize cho endpoint này
+    //public IActionResult TestAuth()
+    //{
+    //    var identity = HttpContext.User.Identity as ClaimsIdentity;
+    //    var claims = identity?.Claims.Select(c => new { c.Type, c.Value }).ToList();
+    //    return Ok(new { 
+    //        IsAuthenticated = identity?.IsAuthenticated ?? false,
+    //        Claims = claims
+    //    });
+    //}
 
 }

@@ -13,7 +13,7 @@ public class EmployeeDTO
     [EnumDataType(typeof(EmployeeStatus))]
     public EmployeeStatus Status { get; set; } = EmployeeStatus.Working;
     [Required]
-    public DateTime Dob { get; set; }
+    public DateTime? Dob { get; set; }
     [EnumDataType(typeof(Gender))]
     public Gender Gender { get; set; } = Gender.Male;
     public string? Image { get; set; }
@@ -26,10 +26,9 @@ public class EmployeeDTO
     [Required]
     public string Address { get; set; }
     [Required]
-    public string Country { get; set; }
+    public string City { get; set; }
     [Required]
-    public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
 

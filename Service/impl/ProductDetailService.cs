@@ -108,6 +108,8 @@ namespace WebBanAoo.Service.impl
             return response;
         }
 
+
+
         public async Task<ProductDetailResponse> SoftDeleteProductDetailAsync(int id, Status.ProductDetailStatus newStatus)
         {
             var coId = await _context.ProductDetail.FindAsync(id);
@@ -123,7 +125,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<ProductDetailResponse> UpdateProductDetailAsync(int id, ProductDetailUpdate update)
         {
-            var coId = await _context.ProductDetail.FindAsync( id);
+            var coId = await _context.ProductDetail.FindAsync(id);
             if (coId == null)
             {
                 throw new KeyNotFoundException($" Khong co Id {id} ton tai");
@@ -135,7 +137,7 @@ namespace WebBanAoo.Service.impl
             coId.ColorId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ColorId, update.ColorId, co => co.ColorId == update.ColorId);
             coId.SizeId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
 
-            var result = _mapper.UpdateToEntity(update);
+            var result = _mapper.UpdateToEntity(coId, update);
             
             coId.Status = result.Status;
             
@@ -149,5 +151,6 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
+
     }
 }

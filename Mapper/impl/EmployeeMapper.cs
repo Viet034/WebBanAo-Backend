@@ -20,7 +20,7 @@ namespace WebBanAoo.Mapper.impl
             emp.Password = create.Password;
             emp.Phone = create.Phone;
             emp.Address = create.Address;
-            emp.Country = create.Country;
+            emp.City = create.City;
             emp.StartDate = create.StartDate;
             emp.EndDate = create.EndDate;
             
@@ -44,7 +44,7 @@ namespace WebBanAoo.Mapper.impl
             emp.Password = delete.Password;
             emp.Phone = delete.Phone;
             emp.Address = delete.Address;
-            emp.Country = delete.Country;
+            emp.City = delete.Country;
             emp.StartDate = delete.StartDate;
             emp.EndDate = delete.EndDate;
             emp.CreatedBy = "System";
@@ -68,7 +68,7 @@ namespace WebBanAoo.Mapper.impl
             
             response.Phone = entity.Phone;
             response.Address = entity.Address;
-            response.Country = entity.Country;
+            response.City = entity.City;
             response.StartDate = entity.StartDate;
             response.EndDate = entity.EndDate;
             response.RefreshToken = entity.RefreshToken;
@@ -93,12 +93,12 @@ namespace WebBanAoo.Mapper.impl
             emp.Password = update.Password;
             emp.Phone = update.Phone;
             emp.Address = update.Address;
-            emp.Country = update.Country;
-            emp.StartDate = update.StartDate;
-            emp.EndDate = update.EndDate;
+            emp.City = update.City;
+            //emp.StartDate = update.StartDate;
+            //emp.EndDate = update.EndDate;
             emp.CreatedBy = "System";
-            emp.CreateDate = DateTime.Now.AddHours(7);
-            emp.UpdateDate = DateTime.Now.AddHours(7);
+            //emp.CreateDate = DateTime.Now.AddHours(7);
+            //emp.UpdateDate = DateTime.Now.AddHours(7);
             emp.UpdateBy = "System";
             return emp;
         }

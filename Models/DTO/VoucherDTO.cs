@@ -20,7 +20,7 @@ public class VoucherDTO
     [Required]
     public int Quantity { get; set; }
     [Required]
-    public decimal DiscountValue { get; set; } //Giá trị giảm giá
+    public int DiscountValue { get; set; } //Giá trị giảm giá
     [Required]
     public decimal MinimumOrderValue { get; set; } //Giá trị đơn tối thiểu
     [Required]

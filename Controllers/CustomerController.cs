@@ -9,7 +9,7 @@ namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-[Authorize(Roles = "Admin, Employee")]
+
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _service;
@@ -54,6 +54,7 @@ public class CustomerController : ControllerBase
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin, Employee")]
     public async Task<IActionResult> FindByName(string name)
     {
         try
@@ -70,6 +71,8 @@ public class CustomerController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [AllowAnonymous]
+    
     public async Task<IActionResult> FindById(int id)
     {
         try
@@ -86,6 +89,7 @@ public class CustomerController : ControllerBase
     [HttpPut("Update/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateCustomer([FromBody] CustomerUpdate update, int id)
     {
         try
@@ -102,6 +106,7 @@ public class CustomerController : ControllerBase
     [HttpPut("ChangeSstatus/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin, Employee")]
     public async Task<IActionResult> SoftDeleteCustomer(int id, CustomerStatus newStatus)
     {
         try

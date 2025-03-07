@@ -62,15 +62,15 @@ public class AuthService : IAuthService
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
     {
         object user = request.UserType switch
-        {
-            UserType.Customer => await _context.Customers
-                .FirstOrDefaultAsync(x => x.Email == request.Email),
-            UserType.Employee => await _context.Employees
-                .Include(e => e.Employee_Roles)
+    {
+        UserType.Customer => await _context.Customers
+            .FirstOrDefaultAsync(x => x.Email == request.Email),
+        UserType.Employee => await _context.Employees
+            .Include(e => e.Employee_Roles)  // Đảm bảo load roles
                 .ThenInclude(er => er.Role)
-                .FirstOrDefaultAsync(x => x.Email == request.Email),
-            _ => throw new ArgumentException("Invalid user type")
-        };
+            .FirstOrDefaultAsync(x => x.Email == request.Email),
+        _ => throw new ArgumentException("Invalid user type")
+    };
 
         if (user == null)
         {
@@ -171,30 +171,42 @@ public class AuthService : IAuthService
         new Claim("UserType", userType.ToString())
     };
 
-        // Thêm roles cho Employee
-        if (userType == UserType.Employee)
+    // Thêm role cho Employee
+    if (userType == UserType.Employee)
+    {
+        // Thêm role mặc định "Employee"
+        claims.Add(new Claim(ClaimTypes.Role, "Employee"));
+        
+        // Nếu có Employee_Roles thì thêm vào
+        if (user.Employee_Roles != null)
         {
             foreach (var employeeRole in user.Employee_Roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, employeeRole.Role.Name));
+                if (employeeRole.Role != null)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, employeeRole.Role.Name));
+                }
             }
         }
-        else
-        {
-            claims.Add(new Claim(ClaimTypes.Role, "Customer"));
-        }
+    }
+    else
+    {
+        claims.Add(new Claim(ClaimTypes.Role, "Customer"));
+    }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds
-        );
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var expires = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["Jwt:TokenExpirationInHours"]));
+    
+    var token = new JwtSecurityToken(
+        issuer: _configuration["Jwt:Issuer"],
+        audience: _configuration["Jwt:Audience"],
+        claims: claims,
+        expires: expires,
+        signingCredentials: creds
+    );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+    return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public async Task<bool> LogoutAsync(int userId, UserType userType)
@@ -377,7 +389,7 @@ public class AuthService : IAuthService
             Password = hashedPassword,
             Phone = request.Phone,
             Address = request.Address,
-            Country = request.Country,
+            City = request.City,
             Dob = request.Dob,
             Gender = Gender.Male,
             Status = EmployeeStatus.Working,
@@ -398,7 +410,7 @@ public class AuthService : IAuthService
             
             Phone = emp.Phone,
             Address = emp.Address,
-            Country = emp.Country,
+            City = emp.City,
             Dob = emp.Dob,
             Gender = emp.Gender,
             Status = emp.Status,

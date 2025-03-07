@@ -91,8 +91,8 @@ namespace WebBanAoo.Mapper.impl
             cus.City = update.City;
             cus.Image = update.Image;
             cus.CreatedBy = "System";
-            cus.CreateDate = DateTime.Now.AddHours(7);
-            cus.UpdateDate = DateTime.Now.AddHours(7);
+            //cus.CreateDate = DateTime.Now.AddHours(7);
+            //cus.UpdateDate = DateTime.Now.AddHours(7);
             cus.UpdateBy = "System";
             return cus;
         }

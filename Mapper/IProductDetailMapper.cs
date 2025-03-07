@@ -8,7 +8,7 @@ public interface IProductDetailMapper
 {
     // request => Entity(DTO)
     ProductDetail CreateToEntity(ProductDetailCreate create);
-    ProductDetail UpdateToEntity(ProductDetailUpdate update);
+    ProductDetail UpdateToEntity(ProductDetail prod, ProductDetailUpdate update);
     ProductDetail DeleteToEntity(ProductDetailDelete delete);
 
     // Entity(DTO) => Response

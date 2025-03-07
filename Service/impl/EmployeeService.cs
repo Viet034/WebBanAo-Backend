@@ -149,23 +149,25 @@ namespace WebBanAoo.Service.impl
             }
 
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
+            //coId.FullName = await _validation.CheckAndUpdateAPIAsync(coId, coId.FullName, update.FullName, co => co.FullName == update.FullName);
+            coId.FullName = update.FullName;
             coId.Address = await _validation.CheckAndUpdateAPIAsync(coId, coId.Address, update.Address, co => co.Address == update.Address);
-            coId.Country = await _validation.CheckAndUpdateAPIAsync(coId, coId.Country, update.Country, co => co.Country == update.Country);
-            coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.StartDate, true);
-            coId.EndDate = await _validation.CheckAndUpdateDateEmployeeAsync(coId, coId.EndDate, update.EndDate, coId.EndDate, false);
+            coId.City = await _validation.CheckAndUpdateAPIAsync(coId, coId.City, update.City, co => co.City == update.City);
+            //coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.StartDate, true);
+            //coId.EndDate = await _validation.CheckAndUpdateDateEmployeeAsync(coId, coId.EndDate, update.EndDate, coId.EndDate, false);
             coId.Dob = await _validation.CheckAndUpdateDOBGeneralAsync(coId, coId.Dob, update.Dob);
             coId.Phone = await _validation.ValidateAndUpdateAsync(coId, coId.Phone, update.Phone, co => co.Phone == update.Phone, isPhone: true);
             coId.Email = await _validation.ValidateAndUpdateAsync(coId, coId.Email, update.Email, co => co.Email == update.Email, isEmail: true);
-            coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
-            
-            
+            //coId.Password = await _validation.ValidateAndUpdateAsync(coId, coId.Password, update.Password, co => co.Password == update.Password, isPassword: true);
+            coId.Image = await _validation.CheckAndUpdateAPIAsync(coId, coId.Image, update.Image, co => co.Image == update.Image);
+            coId.Gender = update.Gender;
+
             var result = _mapper.UpdateToEntity(update);
 
 
-            coId.Gender = result.Gender;
             
-            coId.Image = result.Image;
+            
+            
             coId.Status = result.Status;
             
             coId.CreateDate = result.CreateDate;

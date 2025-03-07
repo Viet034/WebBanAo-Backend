@@ -26,6 +26,8 @@ public AuthController(IAuthService service, ILogger<AuthController> logger)
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        Console.WriteLine($"Received login request: Email={request.Email}, UserType={request.UserType}");
+
         try
         {
             var response = await _service.LoginAsync(request);
@@ -54,7 +56,7 @@ public AuthController(IAuthService service, ILogger<AuthController> logger)
 
     [HttpPost("register/employee")]
     //[Authorize(Roles = "Admin")] // Chỉ Admin mới có thể tạo nhân viên mới
-    [Authorize(Roles = "Admin, Employee")]
+    [AllowAnonymous]
     public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterRequest request)
     {
         try

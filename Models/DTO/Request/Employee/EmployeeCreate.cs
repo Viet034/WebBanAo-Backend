@@ -14,11 +14,15 @@ public class EmployeeCreate
     public string Password { get; set; }
     public string Phone { get; set; }
     public string Address { get; set; }
-    public string Country { get; set; }
+    public string City { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
 
-    public EmployeeCreate(string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string password, string phone, string address, string country, DateTime startDate, DateTime? endDate)
+    public EmployeeCreate()
+    {
+    }
+
+    public EmployeeCreate(string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string password, string phone, string address, string City, DateTime startDate, DateTime? endDate)
     {
         Code = code;
         FullName = fullName;
@@ -30,7 +34,7 @@ public class EmployeeCreate
         Password = password;
         Phone = phone;
         Address = address;
-        Country = country;
+        City = City;
         StartDate = startDate;
         EndDate = endDate;
     }

@@ -17,12 +17,12 @@ public class EmployeeRegisterRequest
     public string Password { get; set; }
 
     [Required(ErrorMessage = "Số điện thoại không được để trống")]
-    [Phone(ErrorMessage = "Số điện thoại không đúng định dạng")]
+    [RegularExpression(@"^(0[0-9]{9})$", ErrorMessage = "Số điện thoại không đúng định dạng")]
     public string Phone { get; set; }
 
     public DateTime Dob { get; set; }
     public Gender Gender { get; set; }
     public string Address { get; set; }
-    public string Country { get; set; }
+    public string City { get; set; }
     public List<string> RoleIds { get; set; }
 }

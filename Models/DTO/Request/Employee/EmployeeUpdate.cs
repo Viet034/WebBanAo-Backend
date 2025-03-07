@@ -15,11 +15,13 @@ public class EmployeeUpdate
     public string Password { get; set; }
     public string Phone { get; set; }
     public string Address { get; set; }
-    public string Country { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public string City { get; set; }
 
-    public EmployeeUpdate(int id, string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string password, string phone, string address, string country, DateTime startDate, DateTime? endDate)
+    public EmployeeUpdate()
+    {
+    }
+
+    public EmployeeUpdate(int id, string code, string fullName, EmployeeStatus status, DateTime dob, Gender gender, string image, string email, string password, string phone, string address, string City)
     {
         Id = id;
         Code = code;
@@ -32,8 +34,9 @@ public class EmployeeUpdate
         Password = password;
         Phone = phone;
         Address = address;
-        Country = country;
-        StartDate = startDate;
-        EndDate = endDate;
+        City = City;
+        
     }
+
+    
 }
