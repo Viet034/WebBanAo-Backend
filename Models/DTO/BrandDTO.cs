@@ -10,4 +10,5 @@ public class BrandDTO
     public string Code { get; set; }
     [Required]
     public string BrandName { get; set; }
+    public string? Image { get; set; }
 }

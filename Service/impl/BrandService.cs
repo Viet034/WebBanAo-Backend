@@ -116,6 +116,7 @@ namespace WebBanAoo.Service.impl
             //check validation
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, b => b.Code == update.Code);
             coId.BrandName = await _validation.CheckAndUpdateAPIAsync(coId, coId.BrandName, update.BrandName, b => b.BrandName == update.BrandName);
+            coId.Image = await _validation.CheckAndUpdateAPIAsync(coId, coId.Image, update.Image, b => b.Image == update.Image);
             
             var result = _mapper.UpdateToEntity(update);
             
