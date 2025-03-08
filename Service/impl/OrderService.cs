@@ -142,5 +142,41 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
+
+        public async Task<OrderResponse> ApplyVoucherToOrderAsync(int orderId, int voucherId)
+    {
+        var order = await _context.Orders
+            .Include(o => o.OrderDetails)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+        
+        if (order == null)
+            throw new KeyNotFoundException($"Order {orderId} not found");
+
+        var voucher = await _context.Vouchers
+            .FirstOrDefaultAsync(v => v.Id == voucherId);
+        
+        if (voucher == null)
+            throw new KeyNotFoundException($"Voucher {voucherId} not found");
+
+        // Validate voucher
+        if (voucher.StartDate > DateTime.Now || voucher.EndDate < DateTime.Now)
+            throw new InvalidOperationException("Voucher is expired or not yet active");
+            
+        if (order.InitialTotalAmount < voucher.MinimumOrderValue)
+            throw new InvalidOperationException($"Order total must be at least {voucher.MinimumOrderValue}");
+
+        // Calculate discount
+        decimal discount = Math.Min(
+            order.InitialTotalAmount * voucher.DiscountValue / 100,
+            voucher.MaxDiscount
+        );
+
+        order.VoucherId = voucherId;
+        order.TotalAmount = order.InitialTotalAmount - discount;
+        
+        await _context.SaveChangesAsync();
+        
+        return _mapper.EntityToResponse(order);
+    }
     }
 }

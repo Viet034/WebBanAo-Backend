@@ -14,6 +14,7 @@ public class ProductDetailDTO
     public decimal Price { get; set; }
     [EnumDataType(typeof(ProductDetailStatus))]
     public ProductDetailStatus Status { get; set; } = ProductDetailStatus.Available;
+    public int Quantity { get; set; }
     [Required]
     public int ProductId { get; set; }
     [Required]

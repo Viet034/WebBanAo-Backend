@@ -21,7 +21,7 @@ namespace WebBanAoo.Controllers
         }
 
         [HttpPost("AddOrderDetail")]
-        [ProducesResponseType(typeof(IEnumerable<Category>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<OrderDetail>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddOrderDetail([FromBody] OrderDetailCreate create)
         {
@@ -33,6 +33,21 @@ namespace WebBanAoo.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.ToString());
+            }
+        }
+        [HttpGet("orderDetailId/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<OrderDetail>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FindOrderDetailByOrderId(int id)
+        {
+            try
+            {
+                var response = await _service.GetOrderDetailByOrderIdAsync(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

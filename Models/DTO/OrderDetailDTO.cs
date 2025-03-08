@@ -15,7 +15,7 @@ public class OrderDetailDTO
     [Required]
     public decimal UnitPrice { get; set; } // Giá mỗi đơn vị sản phẩm
     [Required]
-    public decimal Discount { get; set; } // Chiết khấu (nếu có)
+    public decimal? Discount { get; set; } // Chiết khấu (nếu có)
     [Required]
     public decimal TotalAmount { get; set; } // Tổng tiền cho sản phẩm (sau chiết khấu)
     public string? Note { get; set; }

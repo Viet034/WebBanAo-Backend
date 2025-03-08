@@ -8,6 +8,7 @@ public class ProductDetail : BaseEntity
     public string Name { get; set; }
     public decimal Price { get; set; }
     public ProductDetailStatus Status { get; set; } = ProductDetailStatus.Available;
+    public int Quantity { get; set; }
     public int ProductId { get; set; }
     public virtual Product Product { get; set; }
     public int ColorId {  get; set; }

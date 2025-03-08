@@ -1,6 +1,8 @@
-﻿using WebBanAoo.Models;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Order;
 using WebBanAoo.Models.DTO.Response;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebBanAoo.Mapper.impl
 {
@@ -14,6 +16,9 @@ namespace WebBanAoo.Mapper.impl
             order.InitialTotalAmount = create.InitialTotalAmount;
             order.TotalAmount = create.TotalAmount;
             order.Note = create.Note;
+            order.CustomerId = create.CustomerId;
+            order.EmployeeId = create.EmployeeId;
+            order.VoucherId = create.VoucherId;
             order.OrderDate = DateTime.Now.AddHours(7);         
             order.CreatedBy = "System";
             order.CreateDate = DateTime.Now.AddHours(7);
@@ -30,6 +35,9 @@ namespace WebBanAoo.Mapper.impl
             order.InitialTotalAmount = delete.InitialTotalAmount;
             order.TotalAmount = delete.TotalAmount;
             order.Note = delete.Note;
+            order.CustomerId = delete.CustomerId;
+            order.EmployeeId = delete.EmployeeId;
+            order.VoucherId = delete.VoucherId;
             order.OrderDate = DateTime.Now.AddHours(7);
             order.CreatedBy = "System";
             order.CreateDate = DateTime.Now.AddHours(7);
@@ -47,8 +55,11 @@ namespace WebBanAoo.Mapper.impl
             response.InitialTotalAmount = entity.InitialTotalAmount;
             response.TotalAmount = entity.TotalAmount;
             response.Note = entity.Note;
-            order.OrderDate = DateTime.Now.AddHours(7);
-            order.CreatedBy = "System";
+            response.CustomerId = entity.CustomerId;
+            response.EmployeeId = entity.EmployeeId;
+            response.VoucherId = entity.VoucherId;
+            response.OrderDate = DateTime.Now.AddHours(7);
+            
             return response;
         }
 
@@ -64,6 +75,9 @@ namespace WebBanAoo.Mapper.impl
             order.InitialTotalAmount = update.InitialTotalAmount;
             order.TotalAmount = update.TotalAmount;
             order.Note = update.Note;
+            order.CustomerId = update.CustomerId;
+            order.EmployeeId = update.EmployeeId;
+            order.VoucherId = update.VoucherId;
             order.OrderDate = DateTime.Now.AddHours(7);
             order.CreatedBy = "System";
             order.CreateDate = DateTime.Now.AddHours(7);

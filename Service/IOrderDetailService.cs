@@ -8,6 +8,7 @@ namespace WebBanAoo.Service
     {
         public Task<IEnumerable<OrderDetailResponse>> GetAllOrderDetailAsync();
         public Task<IEnumerable<OrderDetailResponse>> SearchOrderDetailByCodeAsync(string key);
+        public Task<IEnumerable<OrderDetailResponse>> GetOrderDetailByOrderIdAsync(int id);
         public Task<OrderDetailResponse> UpdateOrderDetailAsync(int id, OrderDetailUpdate update);
         public Task<OrderDetailResponse> CreateOrderDetailAsync(OrderDetailCreate create);
         public Task<bool> HardDeleteOrderDetailAsync(int id);

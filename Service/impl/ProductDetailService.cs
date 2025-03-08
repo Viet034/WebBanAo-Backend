@@ -136,6 +136,7 @@ namespace WebBanAoo.Service.impl
             coId.ProductId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ProductId, update.ProductId, co => co.ProductId == update.ProductId);
             coId.ColorId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ColorId, update.ColorId, co => co.ColorId == update.ColorId);
             coId.SizeId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
+            coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
 
             var result = _mapper.UpdateToEntity(coId, update);
             

@@ -11,6 +11,7 @@ namespace WebBanAoo.Models.DTO.Request.ProductDetail
         public string Name { get; set; }
 
         public decimal Price { get; set; }
+        public int Quantity { get; set; }
 
         public ProductDetailStatus Status { get; set; } = ProductDetailStatus.Available;
 
@@ -24,7 +25,7 @@ namespace WebBanAoo.Models.DTO.Request.ProductDetail
         {
         }
 
-        public ProductDetailUpdate(int id, string code, string name, decimal price, ProductDetailStatus status, int productId, int colorId, int sizeId)
+        public ProductDetailUpdate(int id, string code, string name, decimal price, ProductDetailStatus status, int productId, int colorId, int sizeId, int quantity)
         {
             Id = id;
             Code = code;
@@ -34,6 +35,7 @@ namespace WebBanAoo.Models.DTO.Request.ProductDetail
             ProductId = productId;
             ColorId = colorId;
             SizeId = sizeId;
+            Quantity = quantity;
         }
     }
 }

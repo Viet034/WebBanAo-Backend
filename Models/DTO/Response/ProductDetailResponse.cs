@@ -9,6 +9,7 @@ public class ProductDetailResponse
     public string Name { get; set; }
     public string ProductCode { get; set; }
     public decimal Price { get; set; }
+    public int Quantity { get; set; }
     public ProductDetailStatus Status { get; set; } = ProductDetailStatus.Available;
     public int ProductId { get; set; }
     public int ColorId { get; set; }
@@ -18,7 +19,7 @@ public class ProductDetailResponse
     {
     }
 
-    public ProductDetailResponse(int id, string code, string name, string productCode, decimal price, ProductDetailStatus status, int productId, int colorId, int sizeId)
+    public ProductDetailResponse(int id, string code, string name, string productCode, decimal price, ProductDetailStatus status, int productId, int colorId, int sizeId, int quantity)
     {
         Id = id;
         Code = code;
@@ -29,5 +30,6 @@ public class ProductDetailResponse
         ProductId = productId;
         ColorId = colorId;
         SizeId = sizeId;
+        Quantity = quantity;
     }
 }

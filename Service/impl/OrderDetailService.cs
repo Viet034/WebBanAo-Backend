@@ -68,7 +68,16 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
-
+        public async Task<IEnumerable<OrderDetailResponse>> GetOrderDetailByOrderIdAsync(int id)
+        {
+            var tId = await _context.OrderDetails.Where(pr => pr.OrderId == id).ToListAsync();
+            if (!tId.Any())
+            {
+                throw new Exception($"Không có Order nào thuộc id = {id}.");
+            }
+            var response = _mapper.ListEntityToResponse(tId);
+            return response;
+        }
         public async Task<IEnumerable<OrderDetailResponse>> GetAllOrderDetailAsync()
         {
             var co = await _context.OrderDetails.ToListAsync();
@@ -126,7 +135,7 @@ namespace WebBanAoo.Service.impl
             coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);
             coId.TotalAmount = await _validation.CheckAndUpdatePriceAsync(coId, coId.TotalAmount, update.TotalAmount, co => co.TotalAmount == update.TotalAmount);
             coId.UnitPrice = await _validation.CheckAndUpdatePriceAsync(coId, coId.UnitPrice, update.UnitPrice, co => co.UnitPrice == update.UnitPrice);
-            coId.Discount = await _validation.CheckAndUpdatePriceAsync(coId, coId.Discount, update.Discount, co => co.Discount == update.Discount);
+            coId.Discount = update.Discount;
             coId.OrderId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.OrderId, update.OrderId, co => co.OrderId == update.OrderId);
             coId.ProductDetailId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ProductDetailId, update.ProductDetailId, co => co.ProductDetailId == update.ProductDetailId);
             
@@ -145,5 +154,8 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
+
+        
+        }
     }
-}
+

@@ -11,13 +11,16 @@ public class OrderResponse
     public decimal TotalAmount { get; set; }
     public string? Note { get; set; }
     public DateTime OrderDate { get; set; }
-    public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    
+    public int CustomerId { get; set; }
+    public int EmployeeId { get; set; }
+    public int VoucherId { get; set; }
 
     public OrderResponse()
     {
     }
 
-    public OrderResponse(int id, string code, OrderStatus status, decimal initialTotalAmount, decimal totalAmount, string? note, DateTime orderDate, DateTime createDate)
+    public OrderResponse(int id, string code, OrderStatus status, decimal initialTotalAmount, decimal totalAmount, string? note, DateTime orderDate,  int customerId, int employeeId, int voucherId)
     {
         Id = id;
         Code = code;
@@ -26,6 +29,9 @@ public class OrderResponse
         TotalAmount = totalAmount;
         Note = note;
         OrderDate = orderDate;
-        CreateDate = createDate;
+        
+        CustomerId = customerId;
+        EmployeeId = employeeId;
+        VoucherId = voucherId;
     }
 }

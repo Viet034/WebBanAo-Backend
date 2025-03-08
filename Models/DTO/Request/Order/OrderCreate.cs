@@ -19,12 +19,15 @@ namespace WebBanAoo.Models.DTO.Request.Order
         public DateTime OrderDate { get; set; }
        
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        public int CustomerId { get; set; }
+        public int EmployeeId { get; set; }
+        public int VoucherId { get; set; }
 
         public OrderCreate()
         {
         }
 
-        public OrderCreate(string code, OrderStatus status, decimal initialTotalAmount, decimal totalAmount, string? note, DateTime orderDate, DateTime createDate)
+        public OrderCreate(string code, OrderStatus status, decimal initialTotalAmount, decimal totalAmount, string? note, DateTime orderDate, DateTime createDate, int customerId, int employeeId, int voucherId)
         {
             Code = code;
             Status = status;
@@ -33,6 +36,9 @@ namespace WebBanAoo.Models.DTO.Request.Order
             Note = note;
             OrderDate = orderDate;
             CreateDate = createDate;
+            CustomerId = customerId;
+            EmployeeId = employeeId;
+            VoucherId = voucherId;
         }
     }
 }

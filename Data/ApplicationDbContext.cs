@@ -180,6 +180,7 @@ namespace WebBanAoo.Data
                 entity.Property(prd => prd.Code).IsRequired().HasMaxLength(100);
                 entity.HasIndex(prd => prd.Code).IsUnique();
                 entity.Property(prd => prd.Price).IsRequired().HasMaxLength(100);
+                entity.Property(prd => prd.Quantity).IsRequired().HasMaxLength(100);
                 entity.Property(prd => prd.Status).IsRequired().HasMaxLength(100)
                 .HasConversion(status => (int)status,  // Lưu số nguyên vào database
                 value => (ProductDetailStatus)value);
