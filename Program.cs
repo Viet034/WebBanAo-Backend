@@ -30,7 +30,8 @@ builder.Services.AddSwaggerGen();
 var connectionStr = builder.Configuration.GetConnectionString("MySQL");
 
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
-    o.UseMySql(connectionStr, new MySqlServerVersion(new Version(8, 0, 33))));
+    o.UseLazyLoadingProxies()
+    .UseMySql(connectionStr, new MySqlServerVersion(new Version(8, 0, 33))));
 
 
 builder.Services.AddScoped<IBrandMapper, BrandMapper>();

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using WebBanAoo.Data;
 using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Cart;
@@ -47,25 +48,31 @@ public class CartService : ICartService
 
     public async Task<CartResponse> GetCartByCustomerIdAsync(int customerId)
     {
-        var cart = await _context.Carts
-            .Include(c => c.Cart_ProductDetails)
-                .ThenInclude(cp => cp.ProductDetail)
-                    .ThenInclude(pd => pd.Product)
-            .Include(c => c.Cart_ProductDetails)
-                .ThenInclude(cp => cp.ProductDetail)
-                    .ThenInclude(pd => pd.Size)
-            .Include(c => c.Cart_ProductDetails)
-                .ThenInclude(cp => cp.ProductDetail)
-                    .ThenInclude(pd => pd.Color)
-            .Include(c => c.Cart_ProductDetails)
-                .ThenInclude(cp => cp.ProductDetail)
-                    .ThenInclude(pd => pd.ProductImages)
-            .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+        var cart1 = await _context.Carts
+                        .Include(c => c.Cart_ProductDetails)
+                        .FirstOrDefaultAsync(x => x.CustomerId == customerId);
+        if(cart1 != null)
+        {
+            
+            var cartProductDetail1 = await _context.Cart_ProductDetails.Where(x => x.CartId == cart1.CartId).ToListAsync();
+            cart1.Cart_ProductDetails = cartProductDetail1;
+            
+            var listIDProductDetail = cartProductDetail1.Select(x => x.ProductDetailId).ToHashSet();
+            var count = cartProductDetail1.Count();
+            var prodcutDetails = await _context.ProductDetail.Where(x => listIDProductDetail.Contains(x.Id)).ToListAsync();
+            // lấy danh sách sản phẩm 
 
-        if (cart == null)
-            throw new Exception("Không tìm thấy giỏ hàng");
+            CartResponse result = new()
+            {
+                CartId = cart1.CartId,
+                CustomerId = customerId,
+                TotalAmount = count,
 
-        return _mapper.ToCartResponse(cart);
+            };
+        }
+
+
+        return _mapper.ToCartResponse(cart1);
     }
 
     public async Task<CartItemResponse> UpdateCartItemQuantityAsync(UpdateCartQuantityRequest request)
@@ -119,15 +126,19 @@ public class CartService : ICartService
 
     public async Task<decimal> GetCartTotalAsync(int customerId)
     {
-        var cart = await _context.Carts
-            .Include(c => c.Cart_ProductDetails)
-                .ThenInclude(cp => cp.ProductDetail)
-            .FirstOrDefaultAsync(c => c.CustomerId == customerId);
 
-        if (cart == null)
+        var cart1 = await _context.Carts.Where(c => c.CustomerId == customerId)
+                                        .FirstOrDefaultAsync();
+        if (cart1 == null) return 0;
+
+        var cartProdcut = await _context.Cart_ProductDetails.Where(x => x.CartId == cart1.CartId).ToListAsync();
+        cart1.Cart_ProductDetails = cartProdcut;
+        
+        
+        if (cart1 == null)
             return 0;
 
-        return cart.Cart_ProductDetails.Sum(item => 
+        return cart1.Cart_ProductDetails.Sum(item => 
             (item.ProductDetail?.Price ?? 0) * item.Quantity);
     }
 

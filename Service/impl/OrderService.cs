@@ -68,6 +68,16 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
+        public async Task<IEnumerable<OrderResponse>> GetOrderByCustomerIdAsync(int id)
+        {
+            var tId = await _context.Orders.Where(pr => pr.CustomerId == id).ToListAsync();
+            if (!tId.Any())
+            {
+                throw new Exception($"Không có Order nào thuộc id = {id}.");
+            }
+            var response = _mapper.ListEntityToResponse(tId);
+            return response;
+        }
 
         public async Task<IEnumerable<OrderResponse>> GetAllOrderAsync()
         {

@@ -83,6 +83,21 @@ public class OrderController : ControllerBase
         }
     }
 
+    [HttpGet("customerId/{id}")]
+    [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    public async Task<IActionResult> FindOrderByCustomerId(int id)
+    {
+        try
+        {
+            var response = await _service.GetOrderByCustomerIdAsync(id);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
 
     [HttpPut("Update/{id}")]

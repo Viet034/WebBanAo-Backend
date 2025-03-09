@@ -11,7 +11,7 @@ namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-[Authorize] // Yêu cầu xác thực để truy cập giỏ hàng
+//[Authorize] // Yêu cầu xác thực để truy cập giỏ hàng
 public class CartController : ControllerBase
 {
     private readonly ICartService _service;
