@@ -67,6 +67,8 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICustomerVoucherMapper, CustomerVoucherMapper>();
 builder.Services.AddScoped<ICustomerVoucherService, CustomerVoucherService>();
 builder.Services.AddScoped(typeof(Validation<>));
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 //Chuy?n ??i enum 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

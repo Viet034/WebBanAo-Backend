@@ -17,6 +17,8 @@ public class Customer : BaseEntity
     public string? Image { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
+    public string? ResetPasswordToken { get; set; }
+    public DateTime? ResetPasswordTokenExpiry { get; set; }
 
     public virtual Cart Cart { get; set; }
     public virtual ICollection<Customer_Voucher> Customer_Vouchers { get; set; } = new List<Customer_Voucher>();

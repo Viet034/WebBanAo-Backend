@@ -4,6 +4,7 @@ using WebBanAoo.Models.DTO.Request.Product;
 using WebBanAoo.Models;
 using System.Net;
 using static WebBanAoo.Models.Status.Status;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebBanAoo.Controllers;
 
@@ -22,6 +23,7 @@ public class ProductController : ControllerBase
     [HttpPost("AddProduct")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddProduct([FromBody] ProductCreate create)
     {
         try
@@ -39,6 +41,7 @@ public class ProductController : ControllerBase
     [HttpGet("GetAll")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
     {
         try
@@ -54,6 +57,7 @@ public class ProductController : ControllerBase
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindByName(string name)
     {
         try
@@ -70,6 +74,7 @@ public class ProductController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindById(int id)
     {
         try
@@ -119,6 +124,7 @@ public class ProductController : ControllerBase
     [HttpPut("Update/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> UpdateProduct([FromBody] ProductUpdate update, int id)
     {
         try
@@ -137,6 +143,7 @@ public class ProductController : ControllerBase
     [HttpPut("ChangeSstatus/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> SoftDeleteProduct(int id, ProductStatus newStatus)
     {
         try
@@ -155,6 +162,7 @@ public class ProductController : ControllerBase
     [HttpDelete("DeletePermanent/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> HardDeleteProduct(int id)
     {
         try

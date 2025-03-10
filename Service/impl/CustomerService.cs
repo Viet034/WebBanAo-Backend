@@ -14,12 +14,14 @@ namespace WebBanAoo.Service.impl
         private readonly ApplicationDbContext _context;
         private ICustomerMapper _mapper;
         private readonly Validation<Customer> _validation;
+        private readonly ICustomPasswordHasher _passwordHasher;
 
-        public CustomerService(ApplicationDbContext context, ICustomerMapper mapper, Validation<Customer> validation)
+        public CustomerService(ApplicationDbContext context, ICustomerMapper mapper, Validation<Customer> validation, ICustomPasswordHasher passwordHasher)
         {
             _context = context;
             _mapper = mapper;
             _validation = validation;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<string> CheckUniqueCodeAsync()
@@ -54,6 +56,7 @@ namespace WebBanAoo.Service.impl
             }
 
             Customer entity = _mapper.CreateToEntity(create);
+            entity.Password = _passwordHasher.HashPassword(create.Password);
 
             if (!string.IsNullOrEmpty(create.Code) && create.Code != "string")
             {

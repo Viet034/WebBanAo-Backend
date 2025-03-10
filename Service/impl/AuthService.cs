@@ -22,16 +22,19 @@ public class AuthService : IAuthService
     private readonly ApplicationDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly ICustomPasswordHasher _customPasswordHasher;
+    private readonly IEmailService _emailService;
     
 
     public AuthService(
         ApplicationDbContext context,
         IConfiguration configuration,
-        ICustomPasswordHasher customPasswordHasher)
+        ICustomPasswordHasher customPasswordHasher,
+        IEmailService emailService)
     {
         _context = context;
         _configuration = configuration;
         _customPasswordHasher = customPasswordHasher;
+        _emailService = emailService;
     }
 
     public async Task<bool> ChangePasswordAsync(int userId, UserType userType, string oldPassword, string newPassword)
@@ -41,7 +44,7 @@ public class AuthService : IAuthService
             var employee = await _context.Employees.FindAsync(userId);
             if (employee == null || !_customPasswordHasher.VerifyPassword(oldPassword, employee.Password))
             {
-                return false;
+                throw new Exception("Mật khẩu cũ không đúng");
             }
             employee.Password = _customPasswordHasher.HashPassword(newPassword);
         }
@@ -50,7 +53,7 @@ public class AuthService : IAuthService
             var customer = await _context.Customers.FindAsync(userId);
             if (customer == null || !_customPasswordHasher.VerifyPassword(oldPassword, customer.Password))
             {
-                return false;
+                throw new Exception("Mật khẩu cũ không đúng");
             }
             customer.Password = _customPasswordHasher.HashPassword(newPassword);
         }
@@ -416,6 +419,88 @@ public class AuthService : IAuthService
             Status = emp.Status,
             
         };
+    }
+
+    public async Task<bool> ForgotPasswordAsync(string email, UserType userType)
+    {
+        try
+        {
+            // 1. Tìm user theo email và chỉ định kiểu object
+            object user = userType switch
+            {
+                UserType.Employee => await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Email == email),
+                UserType.Customer => await _context.Customers
+                    .FirstOrDefaultAsync(c => c.Email == email),
+                _ => throw new ArgumentException("Invalid user type")
+            };
+
+            if (user == null) throw new Exception("Email không tồn tại"); ;
+
+            // 2. Tạo reset token
+            var resetToken = Guid.NewGuid().ToString();
+            var resetTokenExpiry = DateTime.UtcNow.AddHours(24);
+
+            // 3. Lưu token vào database
+            if (user is Employee employee)
+            {
+                employee.ResetPasswordToken = resetToken;
+                employee.ResetPasswordTokenExpiry = resetTokenExpiry;
+            }
+            else if (user is Customer customer)
+            {
+                customer.ResetPasswordToken = resetToken;
+                customer.ResetPasswordTokenExpiry = resetTokenExpiry;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // 4. Gửi email reset password
+            await _emailService.SendResetPasswordEmailAsync(email, resetToken, userType.ToString());
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword, UserType userType)
+    {
+        // 1. Tìm user theo token và chỉ định kiểu object
+        object user = userType switch
+        {
+            UserType.Employee => await _context.Employees
+                .FirstOrDefaultAsync(e => e.ResetPasswordToken == token
+                    && e.ResetPasswordTokenExpiry > DateTime.UtcNow),
+            UserType.Customer => await _context.Customers
+                .FirstOrDefaultAsync(c => c.ResetPasswordToken == token
+                    && c.ResetPasswordTokenExpiry > DateTime.UtcNow),
+            _ => throw new ArgumentException("Invalid user type")
+        };
+
+        if (user == null) throw new Exception("Token không hợp lệ hoặc đã hết hạn");
+        
+
+        // 2. Set mật khẩu mới
+        var hashedPassword = _customPasswordHasher.HashPassword(newPassword);
+
+        if (user is Employee employee)
+        {
+            employee.Password = hashedPassword;
+            employee.ResetPasswordToken = null;
+            employee.ResetPasswordTokenExpiry = null;
+        }
+        else if (user is Customer customer)
+        {
+            customer.Password = hashedPassword;
+            customer.ResetPasswordToken = null;
+            customer.ResetPasswordTokenExpiry = null;
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     // Implement các method khác...

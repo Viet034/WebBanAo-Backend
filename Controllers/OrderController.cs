@@ -4,6 +4,7 @@ using WebBanAoo.Models.DTO.Request.Order;
 using WebBanAoo.Models;
 using System.Net;
 using static WebBanAoo.Models.Status.Status;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebBanAoo.Controllers;
 
@@ -22,6 +23,7 @@ public class OrderController : ControllerBase
     [HttpPost("AddOrder")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> AddOrder([FromBody] OrderCreate create)
     {
         try
@@ -39,6 +41,7 @@ public class OrderController : ControllerBase
     [HttpGet("GetAll")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<IEnumerable<Order>>> GetAllOrder()
     {
         try
@@ -54,6 +57,7 @@ public class OrderController : ControllerBase
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindByName(string name)
     {
         try
@@ -70,6 +74,7 @@ public class OrderController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindById(int id)
     {
         try
@@ -86,6 +91,7 @@ public class OrderController : ControllerBase
     [HttpGet("customerId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [AllowAnonymous]  
     public async Task<IActionResult> FindOrderByCustomerId(int id)
     {
         try
@@ -103,6 +109,7 @@ public class OrderController : ControllerBase
     [HttpPut("Update/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> UpdateOrder([FromBody] OrderUpdate update, int id)
     {
         try
@@ -121,6 +128,7 @@ public class OrderController : ControllerBase
     [HttpPut("ChangeSstatus/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> SoftDeleteOrder(int id, OrderStatus newStatus)
     {
         try
@@ -139,6 +147,7 @@ public class OrderController : ControllerBase
     [HttpDelete("DeletePermanent/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> HardDeleteOrder(int id)
     {
         try

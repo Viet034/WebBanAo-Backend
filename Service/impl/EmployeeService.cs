@@ -15,12 +15,14 @@ namespace WebBanAoo.Service.impl
         private readonly ApplicationDbContext _context;
         private IEmployeeMapper _mapper;
         private readonly Validation<Employee> _validation;
+        private readonly ICustomPasswordHasher _passwordHasher;
 
-        public EmployeeService(ApplicationDbContext context, IEmployeeMapper mapper, Validation<Employee> validation)
+        public EmployeeService(ApplicationDbContext context, IEmployeeMapper mapper, Validation<Employee> validation, ICustomPasswordHasher passwordHasher)
         {
             _context = context;
             _mapper = mapper;
             _validation = validation;
+            _passwordHasher = passwordHasher;
         }
 
         
@@ -58,6 +60,7 @@ namespace WebBanAoo.Service.impl
             }
 
             Employee entity = _mapper.CreateToEntity(create);
+            entity.Password = _passwordHasher.HashPassword(create.Password);
 
             //Check trùng Code
             if (string.IsNullOrEmpty(entity.Code) || entity.Code == "string")

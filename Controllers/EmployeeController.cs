@@ -11,8 +11,8 @@ namespace WebBanAoo.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-// [Authorize] // Tạm thời comment lại để kiểm tra
-[Authorize(Roles = "Admin, Employee")]
+
+
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeService _service;
@@ -25,6 +25,7 @@ public class EmployeeController : ControllerBase
     [HttpPost("AddEmployee")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddEmployee([FromBody] EmployeeCreate create)
     {
         try
@@ -42,6 +43,7 @@ public class EmployeeController : ControllerBase
     [HttpGet("GetAll")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployee()
     {
         try
@@ -57,6 +59,7 @@ public class EmployeeController : ControllerBase
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindByName(string name)
     {
         try
@@ -73,6 +76,7 @@ public class EmployeeController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> FindById(int id)
     {
         try
@@ -91,6 +95,7 @@ public class EmployeeController : ControllerBase
     [HttpPut("Update/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> UpdateEmployee([FromBody] EmployeeUpdate update, int id)
     {
         try
@@ -109,6 +114,7 @@ public class EmployeeController : ControllerBase
     [HttpPut("ChangeSstatus/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SoftDeleteEmployee(int id, EmployeeStatus newStatus)
     {
         try
@@ -127,6 +133,7 @@ public class EmployeeController : ControllerBase
     [HttpDelete("DeletePermanent/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> HardDeleteEmployee(int id)
     {
         try

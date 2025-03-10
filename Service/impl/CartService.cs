@@ -51,7 +51,19 @@ public class CartService : ICartService
         var cart1 = await _context.Carts
                         .Include(c => c.Cart_ProductDetails)
                         .FirstOrDefaultAsync(x => x.CustomerId == customerId);
-        if(cart1 != null)
+        if (cart1 == null)
+        {
+            cart1 = new Cart
+            {
+                CustomerId = customerId,
+                SessionId = Guid.NewGuid().ToString(),
+                Cart_ProductDetails = new List<Cart_ProductDetail>()
+            };
+
+            _context.Carts.Add(cart1);
+            await _context.SaveChangesAsync();
+        }
+        if (cart1 != null)
         {
             
             var cartProductDetail1 = await _context.Cart_ProductDetails.Where(x => x.CartId == cart1.CartId).ToListAsync();
@@ -70,7 +82,7 @@ public class CartService : ICartService
 
             };
         }
-
+        
 
         return _mapper.ToCartResponse(cart1);
     }
@@ -133,7 +145,8 @@ public class CartService : ICartService
 
         var cartProdcut = await _context.Cart_ProductDetails.Where(x => x.CartId == cart1.CartId).ToListAsync();
         cart1.Cart_ProductDetails = cartProdcut;
-        
+        var count = cartProdcut.Count();
+        //var listProduct = 
         
         if (cart1 == null)
             return 0;

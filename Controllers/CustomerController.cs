@@ -22,6 +22,7 @@ public class CustomerController : ControllerBase
     [HttpPost("AddCustomer")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin, Employee")]
     public async Task<IActionResult> AddCustomer([FromBody] CustomerCreate create)
     {
         try
@@ -38,6 +39,7 @@ public class CustomerController : ControllerBase
     [HttpGet("GetAll")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Admin, Employee")]
     public async Task<ActionResult<IEnumerable<Customer>>> GetAllCustomer()
     {
         try
@@ -123,6 +125,7 @@ public class CustomerController : ControllerBase
     [HttpDelete("DeletePermanent/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Customer>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [AllowAnonymous]
     public async Task<IActionResult> HardDeleteCustomer(int id)
     {
         try
