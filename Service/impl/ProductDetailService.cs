@@ -77,7 +77,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<IEnumerable<ProductDetailResponse>> GetAllProductDetailAsync()
         {
-            var co = await _context.ProductDetail.ToListAsync();
+            var co = await _context.ProductDetail.OrderByDescending(x => x.CreateDate).ToListAsync();
             if (co == null) throw new Exception($"Khong co ban ghi nao");
 
             var response = _mapper.ListEntityToResponse(co);
@@ -136,7 +136,7 @@ namespace WebBanAoo.Service.impl
             coId.ProductId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ProductId, update.ProductId, co => co.ProductId == update.ProductId);
             coId.ColorId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.ColorId, update.ColorId, co => co.ColorId == update.ColorId);
             coId.SizeId = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
-            coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.SizeId, update.SizeId, co => co.SizeId == update.SizeId);
+            coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);
 
             var result = _mapper.UpdateToEntity(coId, update);
             

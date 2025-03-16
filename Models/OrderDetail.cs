@@ -16,5 +16,10 @@ public class OrderDetail : BaseEntity
     public int ProductDetailId { get; set; }
     public virtual ProductDetail ProductDetail { get; set; }
 
+    public decimal CalculateTotalAmount()
+    {
+        return (UnitPrice * Quantity) - (Discount ?? 0);
+    }
+
 }
 

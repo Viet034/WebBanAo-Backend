@@ -33,7 +33,7 @@ namespace WebBanAoo.Models.Status
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum CustomerVoucherStatus
         {
-            Active = 0, Expired = 1
+            Active = 0, Expired = 1, Used = 2
         }
   
         public enum EmployeeStatus

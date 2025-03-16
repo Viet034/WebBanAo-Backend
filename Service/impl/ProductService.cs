@@ -89,7 +89,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<IEnumerable<ProductResponse>> GetAllProductsAsync()
         {
-            var pro = await _context.Products.ToListAsync();
+            var pro = await _context.Products.OrderByDescending(x => x.CreateDate).ToListAsync();
             if (pro == null) throw new Exception($"Khong co ban ghi nao");
 
             var response =  _mapper.ListEntityToResponse(pro);
@@ -114,6 +114,7 @@ namespace WebBanAoo.Service.impl
                 throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             proId.Code = await _validation.CheckAndUpdateAPIAsync(proId, proId.Code, update.Code, co => co.Code == update.Code);
+            
             proId.ProductName = await _validation.CheckAndUpdateAPIAsync(proId, proId.ProductName, update.ProductName, co => co.ProductName == update.ProductName);
             proId.Description = await _validation.CheckAndUpdateAPIAsync(proId, proId.Description, update.Description, co => co.Description == update.Description);
             proId.CategoryId = await _validation.CheckAndUpdateQuantityAsync(proId, proId.CategoryId, update.CategoryId, co => co.CategoryId == update.CategoryId);

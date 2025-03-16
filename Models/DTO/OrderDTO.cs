@@ -20,6 +20,6 @@ public class OrderDTO
 
     public int CustomerId { get; set; }
     public int EmployeeId { get; set; }
-    public int VoucherId { get; set; }
+    public int? VoucherId { get; set; }
 
 }

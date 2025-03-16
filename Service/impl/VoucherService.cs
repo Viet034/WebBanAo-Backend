@@ -6,6 +6,7 @@ using WebBanAoo.Models.DTO.Request.Voucher;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.Status;
 using WebBanAoo.Ultility;
+using static WebBanAoo.Models.Status.Status;
 
 namespace WebBanAoo.Service.impl
 {
@@ -76,7 +77,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<IEnumerable<VoucherResponse>> GetAllVoucherAsync()
         {
-            var co = await _context.Vouchers.ToListAsync();
+            var co = await _context.Vouchers.OrderByDescending(x => x.CreateDate).ToListAsync();
             if (co == null) throw new Exception($"Khong co ban ghi nao");
 
             var response = _mapper.ListEntityToResponse(co);
@@ -165,6 +166,35 @@ namespace WebBanAoo.Service.impl
 
             var response = _mapper.EntityToResponse(coId);
             return response;
+        }
+
+        public async Task<IEnumerable<VoucherResponse>> GetValidVouchersForOrderAsync(decimal orderAmount, int customerId)
+        {
+            var now = DateTime.Now;
+            
+            // Lấy các voucher còn hiệu lực và phù hợp với giá trị đơn hàng
+            var validVouchers = await _context.Vouchers
+                .Where(v => 
+                    v.Status == VoucherStatus.Active &&
+                    v.StartDate <= now &&
+                    v.EndDate >= now &&
+                    v.MinimumOrderValue <= orderAmount &&
+                    v.Quantity > 0)
+                .ToListAsync();
+
+            // Lọc ra các voucher mà khách hàng chưa sử dụng
+            var usedVoucherIds = await _context.Customer_Vouchers
+                .Where(cv => 
+                    cv.CustomerId == customerId && 
+                    cv.Status == CustomerVoucherStatus.Used)
+                .Select(cv => cv.VoucherId)
+                .ToListAsync();
+
+            validVouchers = validVouchers
+                .Where(v => !usedVoucherIds.Contains(v.Id))
+                .ToList();
+
+            return _mapper.ListEntityToResponse(validVouchers);
         }
     }
 }

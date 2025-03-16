@@ -5,6 +5,10 @@ using WebBanAoo.Models;
 using System.Net;
 using static WebBanAoo.Models.Status.Status;
 using Microsoft.AspNetCore.Authorization;
+using WebBanAoo.Models.DTO.Request.Cart;
+using WebBanAoo.Models.DTO.Response;
+using WebBanAoo.Service.impl;
+using System.Security.Claims;
 
 namespace WebBanAoo.Controllers;
 
@@ -155,6 +159,95 @@ public class OrderController : ControllerBase
             var response = await _service.HardDeleteOrderAsync(id);
             return Ok(response);
         }catch(Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    [HttpPost("checkout")]
+    [ProducesResponseType(typeof(OrderResponse), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> CheckoutFromCart([FromBody] CartCheckoutRequest request)
+    {
+        try
+        {
+            var response = await _service.CheckoutFromCartAsync(request);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    [HttpPut("assign-order/{orderId}")]
+    [Authorize(Roles = "Admin,Employee")]  // Chỉ employee mới được assign
+    public async Task<IActionResult> AssignOrderToCurrentEmployee(int orderId)
+    {
+        try
+        {
+            // Lấy employeeId từ token của người đang đăng nhập
+            //var employeeId = User.FindFirst("EmployeeId")?.Value;
+            //var employeeIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //var userTypeClaim = User.FindFirst("UserType")?.Value;
+            //if (string.IsNullOrEmpty(userTypeClaim))
+            //    return Unauthorized("Employee information not found");
+
+            //var response = await _service.AssignEmployeeToOrderAsync(orderId, int.Parse(userTypeClaim));
+            //return Ok(response);
+            var employeeIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(employeeIdClaim))
+                return Unauthorized("Employee ID not found");
+
+            if (!int.TryParse(employeeIdClaim, out int employeeId))
+                return BadRequest("Invalid Employee ID format");
+
+            var response = await _service.AssignEmployeeToOrderAsync(orderId, employeeId);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("pending-orders")]
+    [Authorize(Roles = "Admin,Employee")]
+    public async Task<IActionResult> GetPendingOrders()
+    {
+        try
+        {
+            var orders = await _service.GetPendingOrdersAsync();
+            return Ok(orders);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("my-orders")]
+    [Authorize(Roles = "Admin,Employee")]
+    public async Task<IActionResult> GetMyOrders()
+    {
+        try
+        {
+            //var employeeId = int.Parse(User.FindFirst("EmployeeId").Value);
+            //var orders = await _service.GetOrdersByEmployeeIdAsync(employeeId);
+            //return Ok(orders);
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(idClaim))
+                return Unauthorized("Employee ID not found in token.");
+
+            if (!int.TryParse(idClaim, out int employeeId))
+                return BadRequest("Invalid Employee ID format.");
+
+            var orders = await _service.GetOrdersByEmployeeIdAsync(employeeId);
+            return Ok(orders);
+        }
+        catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }

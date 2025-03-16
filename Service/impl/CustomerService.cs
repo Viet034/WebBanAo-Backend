@@ -92,7 +92,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<IEnumerable<CustomerResponse>> GetAllCustomerAsync()
         {
-            var co = await _context.Customers.ToListAsync();
+            var co = await _context.Customers.OrderByDescending(x => x.CreateDate).ToListAsync();
             if (co == null) throw new Exception($"Khong co ban ghi nao");
 
             var response = _mapper.ListEntityToResponse(co);

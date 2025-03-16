@@ -21,7 +21,7 @@ namespace WebBanAoo.Models.DTO.Request.Order
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
         public int CustomerId { get; set; }
         public int EmployeeId { get; set; }
-        public int VoucherId { get; set; }
+        public int? VoucherId { get; set; }
 
         public OrderCreate()
         {

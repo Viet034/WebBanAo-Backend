@@ -15,7 +15,7 @@ public class Order : BaseEntity
     public virtual Customer Customer { get; set; }
     public int EmployeeId { get; set; }
     public virtual Employee Employee { get; set; }
-    public int VoucherId { get; set; }
-    public virtual Voucher Voucher { get; set; }
+    public int? VoucherId { get; set; }
+    public virtual Voucher? Voucher { get; set; }
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }
