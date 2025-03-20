@@ -15,12 +15,14 @@ namespace WebBanAoo.Service.impl
         private readonly ApplicationDbContext _context;
         private IVoucherMapper _mapper;
         private readonly Validation<Voucher> _validation;
+        private readonly ILogger<VoucherService> _logger;
 
-        public VoucherService(ApplicationDbContext context, IVoucherMapper mapper, Validation<Voucher> validation)
+        public VoucherService(ApplicationDbContext context, IVoucherMapper mapper, Validation<Voucher> validation, ILogger<VoucherService> logger)
         {
             _context = context;
             _mapper = mapper;
             _validation = validation;
+            _logger = logger;
         }
 
         public async Task<string> CheckUniqueCodeAsync()
@@ -77,7 +79,7 @@ namespace WebBanAoo.Service.impl
 
         public async Task<IEnumerable<VoucherResponse>> GetAllVoucherAsync()
         {
-            var co = await _context.Vouchers.OrderByDescending(x => x.CreateDate).ToListAsync();
+            var co = await _context.Vouchers.OrderByDescending(x => x.EndDate).ToListAsync();
             if (co == null) throw new Exception($"Khong co ban ghi nao");
 
             var response = _mapper.ListEntityToResponse(co);
@@ -195,6 +197,13 @@ namespace WebBanAoo.Service.impl
                 .ToList();
 
             return _mapper.ListEntityToResponse(validVouchers);
+        }
+
+        public Task<bool> ScanAndUpdateStatusAsync()
+        {
+            // thực thi get all và kiểm tra thời gian ở đây + update status nếu cần
+            _logger.LogInformation($"Chạy hàm {nameof(ScanAndUpdateStatusAsync)}");
+            return Task.FromResult(true);
         }
     }
 }

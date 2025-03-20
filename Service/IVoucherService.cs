@@ -14,5 +14,6 @@ namespace WebBanAoo.Service
         public Task<VoucherResponse> SoftDeleteVoucherAsync(int id, VoucherStatus newStatus);
         public Task<VoucherResponse> FindVoucherByIdAsync(int id);
         public Task<string> CheckUniqueCodeAsync();
+        public Task<bool> ScanAndUpdateStatusAsync();
     }
 }

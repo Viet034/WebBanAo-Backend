@@ -295,7 +295,7 @@ namespace WebBanAoo.Data
 
                 entity.HasMany(cprd => cprd.Cart_ProductDetails)
                 .WithOne(c => c.Cart)
-                .HasForeignKey(prd => prd.ProductDetailId).OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(prd => prd.CartId).OnDelete(DeleteBehavior.Cascade);
             });
 
             // Anh xa Customer voi bang Customers trong mySql

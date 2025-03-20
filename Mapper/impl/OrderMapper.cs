@@ -8,9 +8,10 @@ namespace WebBanAoo.Mapper.impl
 {
     public class OrderMapper : IOrderMapper
     {
-        private readonly Order order = new Order();
+        
         public Order CreateToEntity(OrderCreate create)
         {
+            Order order = new Order();
             order.Code = create.Code;
             order.Status = create.Status;
             order.InitialTotalAmount = create.InitialTotalAmount;
@@ -29,6 +30,7 @@ namespace WebBanAoo.Mapper.impl
 
         public Order DeleteToEntity(OrderDelete delete)
         {
+            Order order = new Order();
             order.Id = delete.Id;
             order.Code = delete.Code;
             order.Status = delete.Status;
@@ -58,7 +60,7 @@ namespace WebBanAoo.Mapper.impl
             response.CustomerId = entity.CustomerId;
             response.EmployeeId = entity.EmployeeId;
             response.VoucherId = entity.VoucherId;
-            response.OrderDate = DateTime.Now.AddHours(7);
+            response.OrderDate = entity.OrderDate;
             
             return response;
         }
@@ -70,6 +72,7 @@ namespace WebBanAoo.Mapper.impl
 
         public Order UpdateToEntity(OrderUpdate update)
         {
+            Order order = new Order();
             order.Code = update.Code;
             order.Status = update.Status;
             order.InitialTotalAmount = update.InitialTotalAmount;

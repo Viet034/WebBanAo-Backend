@@ -68,14 +68,14 @@ namespace WebBanAoo.Service.impl
             var coId = await  _context.Orders.FindAsync( id);
             if (coId == null)
             {
-                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($" Không có Id {id} tồn tại");
             }
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
         public async Task<IEnumerable<OrderResponse>> GetOrderByCustomerIdAsync(int id)
         {
-            var tId = await _context.Orders.Where(pr => pr.CustomerId == id).ToListAsync();
+            var tId = await _context.Orders.Where(pr => pr.CustomerId == id).OrderByDescending(x => x.OrderDate).ToListAsync();
             if (!tId.Any())
             {
                 throw new Exception($"Không có Order nào thuộc id = {id}.");
@@ -87,7 +87,7 @@ namespace WebBanAoo.Service.impl
         public async Task<IEnumerable<OrderResponse>> GetAllOrderAsync()
         {
             var co = await _context.Orders.OrderByDescending(x => x.OrderDate).ToListAsync();
-            if (co == null) throw new Exception($"Khong co ban ghi nao");
+            if (co == null) throw new Exception($"Không có bản ghi nào");
 
             var response = _mapper.ListEntityToResponse(co);
 
@@ -99,7 +99,7 @@ namespace WebBanAoo.Service.impl
             var co = await _context.Orders.FindAsync( id);
             if (co == null)
             {
-                throw new KeyNotFoundException($" Khong co Id {id} ton tai");
+                throw new KeyNotFoundException($"Không có Id {id} ton tai");
             }
             _context.Orders.Remove(co);
             await _context.SaveChangesAsync();
@@ -111,7 +111,7 @@ namespace WebBanAoo.Service.impl
             var coKey = await _context.Orders
                .FromSqlRaw("Select * from Orders where Code like {0}", "%" + key + "%").ToListAsync();
 
-            if (coKey == null) throw new Exception($"Khong co Code {key} nao");
+            if (coKey == null) throw new Exception($"Không có Code {key} nào");
             var response = _mapper.ListEntityToResponse(coKey);
             return response;
         }
@@ -123,15 +123,13 @@ namespace WebBanAoo.Service.impl
         .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
-                throw new KeyNotFoundException($"Order {id} not found");
+                throw new KeyNotFoundException($"Đơn {id} không tồn tại");
 
-            // Kiểm tra quyền cập nhật
-            //if (order.EmployeeId != employeeId)
-            //    throw new InvalidOperationException("You are not assigned to this order");
+           
 
             // Validate trạng thái
             if (!IsValidStatusTransition(order.Status, newStatus))
-                throw new InvalidOperationException($"Cannot change status from {order.Status} to {newStatus}");
+                throw new InvalidOperationException($"Không thể thay đổi từ trạng thái {order.Status} sang {newStatus}");
 
             // Cập nhật trạng thái
             order.Status = newStatus;
@@ -178,26 +176,26 @@ namespace WebBanAoo.Service.impl
                 .FirstOrDefaultAsync(o => o.Id == orderId);
             
             if (order == null)
-                throw new KeyNotFoundException($"Order {orderId} not found");
+                throw new KeyNotFoundException($"Đơn {orderId} không tồn tại!");
 
             var voucher = await _context.Vouchers
                 .FirstOrDefaultAsync(v => v.Id == voucherId);
             
             if (voucher == null)
-                throw new KeyNotFoundException($"Voucher {voucherId} not found");
+                throw new KeyNotFoundException($"Voucher {voucherId} không tồn tại!");
 
             // Kiểm tra các điều kiện
             if (voucher.Status != VoucherStatus.Active)
-                throw new InvalidOperationException("Voucher is not active");
+                throw new InvalidOperationException("Voucher chưa được kích hoạt!");
             
             if (voucher.StartDate > DateTime.Now || voucher.EndDate < DateTime.Now)
-                throw new InvalidOperationException("Voucher is expired or not yet active");
+                throw new InvalidOperationException("Voucher đã hết hạn hoặc chưa đến hạn tạo.");
             
             if (order.InitialTotalAmount < voucher.MinimumOrderValue)
-                throw new InvalidOperationException($"Order total must be at least {voucher.MinimumOrderValue}");
+                throw new InvalidOperationException($"Đơn tối thiểu {voucher.MinimumOrderValue}");
 
             if (voucher.Quantity <= 0)
-                throw new InvalidOperationException("Voucher is out of stock");
+                throw new InvalidOperationException("Voucher đã hết!");
 
             // Kiểm tra xem khách hàng đã sử dụng voucher này chưa
             var customerVoucher = await _context.Customer_Vouchers
@@ -206,7 +204,7 @@ namespace WebBanAoo.Service.impl
                     cv.VoucherId == voucherId);
 
             if (customerVoucher?.Status == CustomerVoucherStatus.Used)
-                throw new InvalidOperationException("This voucher has already been used by the customer");
+                throw new InvalidOperationException("Voucher này đã được sử dụng!");
 
             // Tính toán giảm giá
             decimal discount = Math.Min(
@@ -246,53 +244,86 @@ namespace WebBanAoo.Service.impl
 
         public async Task<OrderResponse> CheckoutFromCartAsync(CartCheckoutRequest request)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // Lấy hoặc tạo Employee System
                 var systemEmployee = await _context.Employees
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(e => e.Id == 29)
                     ?? await CreateSystemEmployee();
 
-                //var cart = await _context.Carts
-                //    .Include(c => c.Cart_ProductDetails)
-                //        .ThenInclude(cpd => cpd.ProductDetail)
-                //    .FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId);
-                var cart1 = await _context.Carts
-                        .Include(c => c.Cart_ProductDetails)
-                        .FirstOrDefaultAsync(x => x.CustomerId == request.CustomerId);
-                var cartProductDetail1 = await _context.Cart_ProductDetails.Where(x => x.CartId == cart1.CartId).ToListAsync();
-                cart1.Cart_ProductDetails = cartProductDetail1;
-                var listIDProductDetail = cartProductDetail1.Select(x => x.ProductDetailId).ToHashSet();
-                var count = cartProductDetail1.Count();
-                var prodcutDetails = await _context.ProductDetail.Where(x => listIDProductDetail.Contains(x.Id)).ToListAsync();
-                
-                // Tạo Order với EmployeeId là system
+                // Truy vấn giỏ hàng trước
+                var cart = await _context.Carts
+                    .FirstOrDefaultAsync(x => x.CustomerId == request.CustomerId);
+
+                if (cart == null)
+                {
+                    throw new Exception("Giỏ hàng không tồn tại.");
+                }
+
+                // Load Cart_ProductDetails riêng
+                var cartDetails = await _context.Cart_ProductDetails
+                    .Where(x => x.CartId == cart.CartId)
+                    .ToListAsync();
+
+                if (!cartDetails.Any())
+                {
+                    throw new Exception("Giỏ hàng rỗng.");
+                }
+
+                cart.Cart_ProductDetails = cartDetails;
+                var listIDProductDetail = cartDetails.Select(x => x.ProductDetailId).ToHashSet();
+
+                // Kiểm tra số lượng trước khi thanh toán
+                await ValidateProductQuantitiesAsync(cart);
+
+                // Tạo Order mới
                 var order = new Order
                 {
                     CustomerId = request.CustomerId,
-                    EmployeeId = systemEmployee.Id,  // Gán EmployeeId system
+                    EmployeeId = systemEmployee.Id,
                     Status = OrderStatus.Pending,
                     Note = request.Note,
                     Code = await CheckUniqueCodeAsync(),
                     VoucherId = request.VoucherId,
                     OrderDate = DateTime.Now,
                     CreatedBy = "System",
-                    CreateDate = DateTime.Now
+                    CreateDate = DateTime.Now,
+                    OrderDetails = new List<OrderDetail>() // Khởi tạo collection
                 };
 
-                // Tạo chi tiết đơn hàng từ giỏ hàng
+                // Lấy thông tin sản phẩm
+                var productDetails = await _context.ProductDetail
+                    .Where(pd => listIDProductDetail.Contains(pd.Id))
+                    
+                    .ToDictionaryAsync(pd => pd.Id, pd => pd);
+
                 decimal totalAmount = 0;
-                foreach (var cartItem in cart1.Cart_ProductDetails)
+
+                // Xử lý từng sản phẩm trong giỏ hàng
+                foreach (var cartItem in cartDetails)  // Sử dụng cartDetails thay vì cart.Cart_ProductDetails
                 {
+                    if (!productDetails.TryGetValue(cartItem.ProductDetailId, out var productDetail))
+                    {
+                        throw new Exception($"Sản phẩm với Id {cartItem.ProductDetailId} không tồn tại");
+                    }
+
+                    if (productDetail.Quantity < cartItem.Quantity)
+                    {
+                        throw new Exception($"Số lượng của sản phẩm {productDetail.Id} đã hết");
+                    }
+
+                    // Tạo chi tiết đơn hàng
                     var orderDetail = new OrderDetail
                     {
                         Code = await _orderDetail.CheckUniqueCodeAsync(),
                         ProductDetailId = cartItem.ProductDetailId,
                         Quantity = cartItem.Quantity,
-                        UnitPrice = cartItem.ProductDetail.Price,
-                        TotalAmount = cartItem.ProductDetail.Price * cartItem.Quantity,
+                        UnitPrice = productDetail.Price,
+                        TotalAmount = productDetail.Price * cartItem.Quantity,
                         Status = OrderDetailStatus.Processed,
-                        Discount = 0,  // Set giá trị mặc định
+                        Discount = 0,
                         CreatedBy = "System",
                         CreateDate = DateTime.Now,
                         UpdateBy = "System",
@@ -301,42 +332,51 @@ namespace WebBanAoo.Service.impl
 
                     totalAmount += orderDetail.TotalAmount;
                     order.OrderDetails.Add(orderDetail);
+
+                    // Cập nhật số lượng trong database trực tiếp
+                    await _context.Database.ExecuteSqlRawAsync(
+                        "UPDATE ProductDetails SET Quantity = Quantity - {0} WHERE Id = {1}",
+                        cartItem.Quantity, cartItem.ProductDetailId);
                 }
 
                 order.InitialTotalAmount = totalAmount;
                 order.TotalAmount = totalAmount;
 
-                // Lưu order
+                // Lưu đơn hàng
                 await _context.Orders.AddAsync(order);
                 await _context.SaveChangesAsync();
 
                 // Áp dụng voucher nếu có
                 if (request.VoucherId.HasValue)
                 {
-                    try 
+                    try
                     {
                         await ApplyVoucherToOrderAsync(order.Id, request.VoucherId.Value);
                     }
                     catch (Exception voucherEx)
                     {
-                        // Log lỗi voucher nhưng vẫn tiếp tục xử lý đơn hàng
-                        // Có thể thông báo cho người dùng về lỗi voucher
-                        order.Note += $"\nVoucher application failed: {voucherEx.Message}";
+                        throw new Exception($"{voucherEx.Message}");
+                       // order.Note += $"\nVoucher application failed: {voucherEx.Message}";
                         await _context.SaveChangesAsync();
                     }
                 }
+                
+                // Xóa giỏ hàng bằng SQL trực tiếp
+                await _context.Database.ExecuteSqlRawAsync(
+                    "DELETE FROM Cart_ProductDetails WHERE CartId = {0}",
+                    cart.CartId);
 
-                // Xóa giỏ hàng
-                _context.Cart_ProductDetails.RemoveRange(cart1.Cart_ProductDetails);
-                await _context.SaveChangesAsync();
-
+                await transaction.CommitAsync();
                 return _mapper.EntityToResponse(order);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error during checkout: {ex.Message}", ex);
+                await transaction.RollbackAsync();
+                throw new Exception($"Lỗi khi thanh toán: {ex.Message}", ex);
             }
+
         }
+
 
         private async Task<Employee> CreateSystemEmployee()
         {
@@ -370,15 +410,15 @@ namespace WebBanAoo.Service.impl
         .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
-                throw new KeyNotFoundException($"Order {orderId} not found");
+                throw new KeyNotFoundException($"Đơn hàng {orderId} không tồn tại");
 
             // Chỉ cho assign khi đơn đang ở System
             if (order.Employee.Id != 29)
-                throw new InvalidOperationException("Order is already assigned to another employee");
+                throw new InvalidOperationException("Đơn hàng đã được đăng ký bởi nhân viên khác");
 
             var employee = await _context.Employees.FindAsync(employeeId);
             if (employee == null)
-                throw new KeyNotFoundException($"Employee {employeeId} not found");
+                throw new KeyNotFoundException($"Nhân viên {employeeId} không tồn tại");
 
             // Chỉ assign employee, không thay đổi status
             order.EmployeeId = employeeId;
@@ -450,6 +490,48 @@ namespace WebBanAoo.Service.impl
                 .ToListAsync();
 
             return _mapper.ListEntityToResponse(orders);
+        }
+
+        private async Task ValidateProductQuantitiesAsync(Cart cart)
+        {
+            // Lấy danh sách ProductDetail IDs từ giỏ hàng
+            var productDetailIds = cart.Cart_ProductDetails.Select(x => x.ProductDetailId).ToList();
+            
+            // Lấy thông tin ProductDetail từ database
+            var productDetails = await _context.ProductDetail
+                .Where(pd => productDetailIds.Contains(pd.Id))
+                .ToDictionaryAsync(pd => pd.Id, pd => pd);
+
+            // Danh sách sản phẩm không đủ số lượng
+            var insufficientProducts = new List<string>();
+
+            // Kiểm tra từng sản phẩm trong giỏ hàng
+            foreach (var cartItem in cart.Cart_ProductDetails)
+            {
+                if (!productDetails.TryGetValue(cartItem.ProductDetailId, out var productDetail))
+                {
+                    throw new InvalidOperationException($"Product detail with ID {cartItem.ProductDetailId} not found");
+                }
+
+                // Kiểm tra số lượng tồn kho
+                if (productDetail.Quantity == 0)
+                {
+                    insufficientProducts.Add($"Product {productDetail.Code} is out of stock");
+                }
+                else if (productDetail.Quantity < cartItem.Quantity)
+                {
+                    insufficientProducts.Add($"Product {productDetail.Code} has insufficient stock (Available: {productDetail.Quantity}, Required: {cartItem.Quantity})");
+                }
+            }
+
+            // Nếu có sản phẩm không đủ số lượng, throw exception
+            if (insufficientProducts.Any())
+            {
+                throw new InvalidOperationException(
+                    "Cannot process checkout due to insufficient stock:\n" + 
+                    string.Join("\n", insufficientProducts)
+                );
+            }
         }
     }
 }

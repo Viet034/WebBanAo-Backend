@@ -6,6 +6,8 @@ using System.Net;
 using static WebBanAoo.Models.Status.Status;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using WebBanAoo.Ultility.Pagination;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebBanAoo.Controllers;
 
@@ -44,17 +46,32 @@ public class EmployeeController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
     [Authorize(Roles = "Admin,Employee")]
+    //public async Task<ActionResult<PageResult<Employee>>> GetEmployees(int pageNumber = 1, int pageSize = 10)
+    //{
+    //    try
+    //    {
+    //        var employees = await _service.GetAllEmployeeAsync();
+    //        var response = employees.AsQueryable().Paginate(pageNumber, pageSize);
+    //        return Ok(response);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return BadRequest(ex.ToString());
+    //    }
+    //}
     public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployee()
     {
         try
         {
             var response = await _service.GetAllEmployeeAsync();
             return Ok(response);
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }
     }
+
 
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Employee>), (int)HttpStatusCode.OK)]
@@ -146,16 +163,6 @@ public class EmployeeController : ControllerBase
         }
     }
 
-    //[HttpGet("test-auth")]
-    //[Authorize] // Giữ lại Authorize cho endpoint này
-    //public IActionResult TestAuth()
-    //{
-    //    var identity = HttpContext.User.Identity as ClaimsIdentity;
-    //    var claims = identity?.Claims.Select(c => new { c.Type, c.Value }).ToList();
-    //    return Ok(new { 
-    //        IsAuthenticated = identity?.IsAuthenticated ?? false,
-    //        Claims = claims
-    //    });
-    //}
+    
 
 }

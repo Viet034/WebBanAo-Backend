@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebBanAoo.Models.Mapper;
 using Microsoft.OpenApi.Models;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,7 +121,20 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+//Quazt
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("MyCronJob");
 
+    q.AddJob<MyCronJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("MyCronTrigger")
+        .WithSimpleSchedule(x => x.WithIntervalInSeconds(3).RepeatForever()));
+});
+// Đăng ký Hosted Service cho Quartz
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICustomPasswordHasher, CustomPasswordHasher>();

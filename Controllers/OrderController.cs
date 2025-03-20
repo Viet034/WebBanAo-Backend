@@ -9,6 +9,8 @@ using WebBanAoo.Models.DTO.Request.Cart;
 using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Service.impl;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using WebBanAoo.Data;
 
 namespace WebBanAoo.Controllers;
 
@@ -18,10 +20,12 @@ namespace WebBanAoo.Controllers;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _service;
+    private readonly ApplicationDbContext _context;
 
-    public OrderController(IOrderService service)
+    public OrderController(IOrderService service, ApplicationDbContext context)
     {
         _service = service;
+        _context = context;
     }
 
     [HttpPost("AddOrder")]
@@ -78,7 +82,7 @@ public class OrderController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Roles = "Admin,Employee,Customer")]
     public async Task<IActionResult> FindById(int id)
     {
         try
@@ -132,7 +136,7 @@ public class OrderController : ControllerBase
     [HttpPut("ChangeSstatus/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Order>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Admin,Employee")]
+    //[Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> SoftDeleteOrder(int id, OrderStatus newStatus)
     {
         try
@@ -167,7 +171,7 @@ public class OrderController : ControllerBase
     [HttpPost("checkout")]
     [ProducesResponseType(typeof(OrderResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Customer")]
+    //[Authorize(Roles = "Customer")]
     public async Task<IActionResult> CheckoutFromCart([FromBody] CartCheckoutRequest request)
     {
         try
@@ -250,6 +254,73 @@ public class OrderController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
+        }
+    }
+
+    [HttpGet("calculate-with-voucher")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> CalculateWithVoucher(int customerId, int voucherId)
+    {
+        try
+        {
+            // Lấy giỏ hàng hiện tại
+            var cart = await _context.Carts
+                .Include(c => c.Cart_ProductDetails)
+                    .ThenInclude(cpd => cpd.ProductDetail)
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            if (cart == null)
+                return BadRequest("Cart not found");
+
+            // Tính tổng tiền giỏ hàng
+            decimal totalAmount = cart.Cart_ProductDetails.Sum(item => 
+                item.ProductDetail.Price * item.Quantity);
+
+            // Lấy thông tin voucher
+            var voucher = await _context.Vouchers
+                .FirstOrDefaultAsync(v => v.Id == voucherId);
+            
+            if (voucher == null)
+                return BadRequest("Voucher not found");
+
+            // Kiểm tra các điều kiện voucher
+            if (voucher.Status != VoucherStatus.Active)
+                return BadRequest("Voucher is not active");
+            
+            if (voucher.StartDate > DateTime.Now || voucher.EndDate < DateTime.Now)
+                return BadRequest("Voucher is expired or not yet active");
+            
+            if (totalAmount < voucher.MinimumOrderValue)
+                return BadRequest($"Order total must be at least {voucher.MinimumOrderValue}");
+
+            if (voucher.Quantity <= 0)
+                return BadRequest("Voucher is out of stock");
+
+            // Kiểm tra xem khách hàng đã sử dụng voucher này chưa
+            var customerVoucher = await _context.Customer_Vouchers
+                .FirstOrDefaultAsync(cv => 
+                    cv.CustomerId == customerId && 
+                    cv.VoucherId == voucherId);
+
+            if (customerVoucher?.Status == CustomerVoucherStatus.Used)
+                return BadRequest("This voucher has already been used by the customer");
+
+            // Tính toán giảm giá
+            decimal discount = Math.Min(
+                totalAmount * voucher.DiscountValue / 100,
+                voucher.MaxDiscount
+            );
+
+            // Trả về kết quả
+            return Ok(new {
+                OriginalAmount = totalAmount,
+                DiscountAmount = discount,
+                FinalAmount = totalAmount - discount
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
