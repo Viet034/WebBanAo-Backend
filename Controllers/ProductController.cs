@@ -41,7 +41,7 @@ public class ProductController : ControllerBase
     [HttpGet("GetAll")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Roles = "Admin,Employee,Customer")]
     public async Task<ActionResult<IEnumerable<Product>>> GetAllProduct()
     {
         try
@@ -57,7 +57,7 @@ public class ProductController : ControllerBase
     [HttpGet("FindByName/{name}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Admin,Employee")]
+    [Authorize(Roles = "Admin,Employee,Customer")]
     public async Task<IActionResult> FindByName(string name)
     {
         try
@@ -74,7 +74,8 @@ public class ProductController : ControllerBase
     [HttpGet("findId/{id}")]
     [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-    [Authorize(Roles = "Admin,Employee")]
+    //[Authorize(Roles = "Admin,Employee,Customer")]
+    [AllowAnonymous]
     public async Task<IActionResult> FindById(int id)
     {
         try

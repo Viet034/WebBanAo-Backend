@@ -7,6 +7,7 @@ using WebBanAoo.Models.DTO.Request.Product;
 using WebBanAoo.Models.DTO.Response;
 using static WebBanAoo.Models.Status.Status;
 using WebBanAoo.Ultility;
+using System.Text.RegularExpressions;
 
 namespace WebBanAoo.Service.impl
 {
@@ -35,7 +36,19 @@ namespace WebBanAoo.Service.impl
             {
                 entity.Code = await CheckUniqueCodeAsync();
             }
-
+            create.ProductName = create.ProductName.Trim();
+            if (string.IsNullOrEmpty(create.ProductName))
+            {
+                throw new Exception("Không được để trống tên");
+            }
+            if (!Regex.IsMatch(create.ProductName, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+            {
+                throw new Exception("Tên không được chứa kí tự đặc biệt");
+            }
+            if(await _context.Products.AnyAsync(x => x.ProductName == create.ProductName))
+            {
+                throw new Exception("Tên sản phẩm đã tồn tại, vui lòng nhập tên khác");
+            }
             while (await _context.Products.AnyAsync(p => p.Code == entity.Code))
             {
                 entity.Code = await CheckUniqueCodeAsync();

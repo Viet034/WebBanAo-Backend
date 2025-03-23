@@ -181,7 +181,7 @@ public class OrderController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.ToString());
+            return BadRequest(ex.Message);
         }
     }
 

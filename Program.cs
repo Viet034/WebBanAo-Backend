@@ -69,6 +69,7 @@ builder.Services.AddScoped<ICustomerVoucherMapper, CustomerVoucherMapper>();
 builder.Services.AddScoped<ICustomerVoucherService, CustomerVoucherService>();
 builder.Services.AddScoped(typeof(Validation<>));
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IBestSellerService, BestSellerService>();
 
 //Chuy?n ??i enum 
 builder.Services.AddControllers()
@@ -131,7 +132,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("MyCronTrigger")
-        .WithSimpleSchedule(x => x.WithIntervalInSeconds(3).RepeatForever()));
+        .WithSimpleSchedule(x => x.WithIntervalInSeconds(60).RepeatForever()));
 });
 // Đăng ký Hosted Service cho Quartz
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

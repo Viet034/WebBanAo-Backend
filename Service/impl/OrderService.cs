@@ -372,7 +372,7 @@ namespace WebBanAoo.Service.impl
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception($"Lỗi khi thanh toán: {ex.Message}", ex);
+                throw new Exception($" {ex.Message}");
             }
 
         }
@@ -510,17 +510,17 @@ namespace WebBanAoo.Service.impl
             {
                 if (!productDetails.TryGetValue(cartItem.ProductDetailId, out var productDetail))
                 {
-                    throw new InvalidOperationException($"Product detail with ID {cartItem.ProductDetailId} not found");
+                    throw new InvalidOperationException($"Sản phẩm với Id {cartItem.ProductDetailId} không tồn tại.");
                 }
 
                 // Kiểm tra số lượng tồn kho
                 if (productDetail.Quantity == 0)
                 {
-                    insufficientProducts.Add($"Product {productDetail.Code} is out of stock");
+                    insufficientProducts.Add($"Sản phẩm đã hết hàng");
                 }
                 else if (productDetail.Quantity < cartItem.Quantity)
                 {
-                    insufficientProducts.Add($"Product {productDetail.Code} has insufficient stock (Available: {productDetail.Quantity}, Required: {cartItem.Quantity})");
+                    insufficientProducts.Add($"Sản phẩm {productDetail.Code} đã hết hàng (Số lượng còn: {productDetail.Quantity}, Số lượng trong giỏ hàng: {cartItem.Quantity})");
                 }
             }
 
@@ -528,7 +528,7 @@ namespace WebBanAoo.Service.impl
             if (insufficientProducts.Any())
             {
                 throw new InvalidOperationException(
-                    "Cannot process checkout due to insufficient stock:\n" + 
+                    "Không thể thanh toán vì số lượng sản phẩm đã hết:\n" + 
                     string.Join("\n", insufficientProducts)
                 );
             }

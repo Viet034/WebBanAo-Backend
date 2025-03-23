@@ -83,6 +83,22 @@ namespace WebBanAoo.Controllers
             }
         }
 
+        [HttpGet("productId/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<ProductDetail>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FindProductDetailByProductIdAsync(int id)
+        {
+            try
+            {
+                var response = await _service.FindProductDetailByProductIdAsync(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("Update/{id}")]
         [ProducesResponseType(typeof(IEnumerable<ProductDetail>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]

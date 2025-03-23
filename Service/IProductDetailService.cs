@@ -13,6 +13,7 @@ namespace WebBanAoo.Service
         public Task<bool> HardDeleteProductDetailAsync(int id);
         public Task<ProductDetailResponse> SoftDeleteProductDetailAsync(int id, ProductDetailStatus newStatus);
         public Task<ProductDetailResponse> FindProductDetailByIdAsync(int id);
+        public Task<IEnumerable<ProductDetailResponse>> FindProductDetailByProductIdAsync(int id);
         public Task<string> CheckUniqueCodeAsync();
     }
 }

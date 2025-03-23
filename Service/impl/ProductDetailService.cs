@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using WebBanAoo.Data;
 using WebBanAoo.Mapper;
 using WebBanAoo.Models;
@@ -51,7 +52,19 @@ namespace WebBanAoo.Service.impl
             {
                 entity.Code = await CheckUniqueCodeAsync();
             }
-
+            create.Name = create.Name.Trim();
+            if (string.IsNullOrEmpty(create.Name))
+            {
+                throw new Exception("Không được để trống tên");
+            }
+            if (!Regex.IsMatch(create.Name, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+            {
+                throw new Exception("Tên không được chứa kí tự đặc biệt");
+            }
+            if (await _context.ProductDetail.AnyAsync(x => x.Name == create.Name))
+            {
+                throw new Exception("Tên sản phẩm đã tồn tại, vui lòng nhập tên khác");
+            }
             while (await _context.ProductDetail.AnyAsync(p => p.Code == entity.Code))
             {
                 entity.Code = await CheckUniqueCodeAsync();
@@ -74,7 +87,16 @@ namespace WebBanAoo.Service.impl
             var response = _mapper.EntityToResponse(coId);
             return response;
         }
-
+        public async Task<IEnumerable<ProductDetailResponse>> FindProductDetailByProductIdAsync(int id)
+        {
+            var tId = await _context.ProductDetail.Where(pr => pr.ProductId == id).ToListAsync();
+            if (!tId.Any())
+            {
+                throw new Exception($"Không có sản phẩm nào thuộc id = {id}.");
+            }
+            var response = _mapper.ListEntityToResponse(tId);
+            return response;
+        }
         public async Task<IEnumerable<ProductDetailResponse>> GetAllProductDetailAsync()
         {
             var co = await _context.ProductDetail.OrderByDescending(x => x.CreateDate).ToListAsync();

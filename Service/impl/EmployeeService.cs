@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using WebBanAoo.Data;
 using WebBanAoo.Mapper;
 using WebBanAoo.Models;
@@ -58,10 +59,40 @@ namespace WebBanAoo.Service.impl
             {
                 throw new Exception("Phone không hợp lệ, Vui lòng nhập đúng định dạng tối thiểu 10 số");
             }
+            // Kiểm tra email đã tồn tại
+            if (await _context.Employees.AnyAsync(x => x.Email == create.Email))
+            {
+                throw new Exception("Email đã tồn tại");
+            }
+            if (await _context.Employees.AnyAsync(x => x.Phone == create.Phone))
+            {
+                throw new Exception("Số điện thoại đã được sử dụng");
+            }
+            
+            if (string.IsNullOrEmpty(create.FullName))
+            {
+                throw new Exception("Không được để trống tên");
+            }
+            create.FullName = Regex.Replace(create.FullName.Trim(), @"\s+", " ");
+            if (!Regex.IsMatch(create.FullName, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+            {
+                throw new Exception("Tên không được chứa kí tự đặc biệt");
+            }
+            var today = DateTime.Today;
+            var age = today.Year - create.Dob.Year;
+            if (create.Dob.Date > today.AddYears(-age))
+            {
+                age--;
+            }
 
+            if (age < 18)
+            {
+                throw new Exception("Nhân viên phải từ 18 tuổi trở lên");
+            }
+            
             Employee entity = _mapper.CreateToEntity(create);
             entity.Password = _passwordHasher.HashPassword(create.Password);
-
+            
             //Check trùng Code
             if (string.IsNullOrEmpty(entity.Code) || entity.Code == "string")
             {

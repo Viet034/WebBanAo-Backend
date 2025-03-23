@@ -1,4 +1,5 @@
-﻿using WebBanAoo.Models;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using WebBanAoo.Models;
 using WebBanAoo.Models.DTO.Request.Voucher;
 using WebBanAoo.Models.DTO.Response;
 
@@ -6,15 +7,16 @@ namespace WebBanAoo.Mapper.impl
 {
     public class VoucherMapper : IVoucherMapper
     {
-        private readonly Voucher voucher = new Voucher();
+        
         public Voucher CreateToEntity(VoucherCreate create)
         {
+            Voucher voucher = new Voucher();
             voucher.Code = create.Code;
             voucher.Name = create.Name;
             voucher.Description = create.Description;
             voucher.Status = create.Status;
-            voucher.StartDate = create.StartDate;
-            voucher.EndDate = create.EndDate;
+            voucher.StartDate = TimeZoneInfo.ConvertTimeToUtc(create.StartDate).AddHours(7);
+            voucher.EndDate = TimeZoneInfo.ConvertTimeToUtc(create.EndDate).AddHours(7);
             voucher.Quantity = create.Quantity;
             voucher.DiscountValue = create.DiscountValue;
             voucher.MinimumOrderValue = create.MinimumOrderValue;
@@ -28,6 +30,7 @@ namespace WebBanAoo.Mapper.impl
 
         public Voucher DeleteToEntity(VoucherDelete delete)
         {
+            Voucher voucher = new Voucher();
             voucher.Id = delete.Id;
             voucher.Code = delete.Code;
             voucher.Name = delete.Name;
@@ -71,12 +74,22 @@ namespace WebBanAoo.Mapper.impl
 
         public Voucher UpdateToEntity(VoucherUpdate update)
         {
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            Voucher voucher = new Voucher();
             voucher.Code = update.Code;
             voucher.Name = update.Name;
             voucher.Description = update.Description;
             voucher.Status = update.Status;
-            voucher.StartDate = update.StartDate;
-            voucher.EndDate = update.EndDate;
+
+
+            //voucher.StartDate = TimeZoneInfo.ConvertTimeToUtc(update.StartDate).AddHours(7);
+            //voucher.EndDate = TimeZoneInfo.ConvertTimeToUtc(update.EndDate).AddHours(7);
+            voucher.StartDate = TimeZoneInfo.ConvertTime(update.StartDate, vnTimeZone);
+            voucher.EndDate = TimeZoneInfo.ConvertTime(update.EndDate, vnTimeZone);
+
+
+
             voucher.Quantity = update.Quantity;
             voucher.DiscountValue = update.DiscountValue;
             voucher.MinimumOrderValue = update.MinimumOrderValue;

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using WebBanAoo.Data;
 using WebBanAoo.Mapper;
 using WebBanAoo.Models;
@@ -53,12 +55,20 @@ namespace WebBanAoo.Service.impl
             {
                 entity.Code = await CheckUniqueCodeAsync();
             }
-
+            
+            if(await _context.Vouchers.AnyAsync(x => x.Name == create.Name))
+            {
+                throw new Exception("Tên Voucher không được trùng");
+            }
             while (await _context.Vouchers.AnyAsync(p => p.Code == entity.Code))
             {
                 entity.Code = await CheckUniqueCodeAsync();
             }
-
+            if (!Regex.IsMatch(create.Name.Trim(), @"^[a-zA-ZÀ-Ỹà-ỹ\s%]+$"))
+            {
+                throw new Exception("Tên không được chứa kí tự đặc biệt (ngoại trừ %)");
+            }
+            create.Name = create.Name.Trim();
             await _context.Vouchers.AddAsync(entity);
 
             await _context.SaveChangesAsync();
@@ -144,15 +154,18 @@ namespace WebBanAoo.Service.impl
                 throw new KeyNotFoundException($" Khong co Id {id} ton tai");
             }
             coId.Code = await _validation.CheckAndUpdateAPIAsync(coId, coId.Code, update.Code, co => co.Code == update.Code);
-            //coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
-            coId.Name = update.Name;
+            coId.Name = await _validation.CheckAndUpdateAPIAsync(coId, coId.Name, update.Name, co => co.Name == update.Name);
+            
+            
+            
             coId.Description = await _validation.CheckAndUpdateAPIAsync(coId, coId.Description, update.Description, co => co.Description == update.Description);
             coId.StartDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.StartDate, update.StartDate, coId.EndDate, true);
             coId.EndDate = await _validation.CheckAndUpdateDateGeneralAsync(coId, coId.EndDate, update.EndDate, coId.StartDate, false);
             coId.DiscountValue = await _validation.CheckAndUpdateQuantityAsync(coId, coId.DiscountValue, update.DiscountValue, co => co.DiscountValue == update.DiscountValue);
             coId.MinimumOrderValue = await _validation.CheckAndUpdatePriceAsync(coId, coId.MinimumOrderValue, update.MinimumOrderValue, co => co.MinimumOrderValue == update.MinimumOrderValue);
             coId.MaxDiscount = await _validation.CheckAndUpdatePriceAsync(coId, coId.MaxDiscount, update.MaxDiscount, co => co.MaxDiscount == update.MaxDiscount);
-            coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);
+            coId.Quantity = update.Quantity;
+            //coId.Quantity = await _validation.CheckAndUpdateQuantityAsync(coId, coId.Quantity, update.Quantity, co => co.Quantity == update.Quantity);
 
             var result = _mapper.UpdateToEntity(update);
             
@@ -199,11 +212,35 @@ namespace WebBanAoo.Service.impl
             return _mapper.ListEntityToResponse(validVouchers);
         }
 
-        public Task<bool> ScanAndUpdateStatusAsync()
+        public async Task<bool> ScanAndUpdateStatusAsync()
         {
             // thực thi get all và kiểm tra thời gian ở đây + update status nếu cần
             _logger.LogInformation($"Chạy hàm {nameof(ScanAndUpdateStatusAsync)}");
-            return Task.FromResult(true);
+            
+            var today = DateTime.Now;
+            var expiredVouchers = await _context.Vouchers
+                .Where(v => v.EndDate <= today && v.Status != VoucherStatus.Expired)
+                .ToListAsync();
+
+            if (expiredVouchers.Any())
+            {
+                foreach (var voucher in expiredVouchers)
+                {
+                    voucher.Status = VoucherStatus.Expired;
+                }
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"{expiredVouchers.Count} vouchers đã được cập nhật trạng thái thành Expired.");
+            }
+            else
+            {
+                _logger.LogInformation("Không có voucher nào cần cập nhật trạng thái.");
+            }
+            _logger.LogInformation($"Thời gian hiện tại: {today}");
+            foreach (var voucher in expiredVouchers)
+            {
+                _logger.LogInformation($"Voucher {voucher.Code} - EndDate: {voucher.EndDate}, Status: {voucher.Status}");
+            }
+            return true;
         }
     }
 }

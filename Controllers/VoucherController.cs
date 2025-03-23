@@ -31,7 +31,7 @@ public class VoucherController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.ToString());
+            return BadRequest(ex.Message);
         }
     }
 
@@ -96,7 +96,7 @@ public class VoucherController : ControllerBase
             return Ok(response);
         }catch (Exception ex)
         {
-            return BadRequest(ex.ToString());
+            return BadRequest(ex.Message);
         }
     }
 

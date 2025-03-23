@@ -14,6 +14,7 @@ using WebBanAoo.Models.DTO.Response;
 using WebBanAoo.Models.DTO.Request.Customer;
 using WebBanAoo.Models.DTO.Request.Employee;
 using WebBanAoo.Ultility;
+using System.Text.RegularExpressions;
 
 namespace Service.impl;
 
@@ -330,7 +331,20 @@ public class AuthService : IAuthService
         {
             throw new Exception("Email đã tồn tại");
         }
-
+        if (await _context.Customers.AnyAsync(x => x.Phone == request.Phone))
+        {
+            throw new Exception("Số điện thoại đã được sử dụng");
+        }
+        request.FullName = request.FullName.Trim();
+        if (string.IsNullOrEmpty(request.FullName))
+        {
+            throw new Exception("Không được để trống tên");
+        }
+        if(!Regex.IsMatch(request.FullName, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+        {
+            throw new Exception("Tên không được chứa kí tự đặc biệt");
+        }
+        
         // Hash password
         var hashedPassword = _customPasswordHasher.HashPassword(request.Password);
 
@@ -379,6 +393,19 @@ public class AuthService : IAuthService
         if (await _context.Employees.AnyAsync(x => x.Email == request.Email))
         {
             throw new Exception("Email đã tồn tại");
+        }
+        if (await _context.Employees.AnyAsync(x => x.Phone == request.Phone))
+        {
+            throw new Exception("Số điện thoại đã được sử dụng");
+        }
+        request.FullName = request.FullName.Trim();
+        if (string.IsNullOrEmpty(request.FullName))
+        {
+            throw new Exception("Không được để trống tên");
+        }
+        if (!Regex.IsMatch(request.FullName, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+        {
+            throw new Exception("Tên không được chứa kí tự đặc biệt");
         }
 
         // Hash password
