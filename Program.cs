@@ -16,6 +16,7 @@ using System.Text;
 using WebBanAoo.Models.Mapper;
 using Microsoft.OpenApi.Models;
 using Quartz;
+using WebBanAoo.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,42 +35,42 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
     o.UseLazyLoadingProxies()
     .UseMySql(connectionStr, new MySqlServerVersion(new Version(8, 0, 33))));
 
-
-builder.Services.AddScoped<IBrandMapper, BrandMapper>();
-builder.Services.AddScoped<IBrandService, BrandService>();
-builder.Services.AddScoped<ICategoryMapper, CategoryMapper>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IColorMapper, ColorMapper>();
-builder.Services.AddScoped<IColorService, ColorService>();
-builder.Services.AddScoped<ICustomerMapper, CustomerMapper>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IEmployeeMapper, EmployeeMapper>();
-builder.Services.AddScoped<IEmployeeService , EmployeeService>();
-builder.Services.AddScoped<IOrderDetailMapper, OrderDetailMapper>();
-builder.Services.AddScoped<IOrderDetailService , OrderDetailService>();
-builder.Services.AddScoped<IOrderMapper, OrderMapper>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IProductDetailMapper, ProductDetailMapper>();
-builder.Services.AddScoped<IProductDetailService , ProductDetailService>();
-builder.Services.AddScoped<IProductMapper, ProductMapper>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IRoleMapper, RoleMapper>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<ISaleMapper, SaleMapper>();
-builder.Services.AddScoped<ISaleService, SaleService>();
-builder.Services.AddScoped<ISizeMapper, SizeMapper>();
-builder.Services.AddScoped<ISizeService, SizeService>();
-builder.Services.AddScoped<IVoucherMapper, VoucherMapper>();
-builder.Services.AddScoped<IVoucherService, VoucherService>();
-builder.Services.AddScoped<IProductImageMapper, ProductImageMapper>();
-builder.Services.AddScoped<IProductImageService, ProductImageService>();
-builder.Services.AddScoped<ICartMapper, CartMapper>();
-builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddScoped<ICustomerVoucherMapper, CustomerVoucherMapper>();
-builder.Services.AddScoped<ICustomerVoucherService, CustomerVoucherService>();
-builder.Services.AddScoped(typeof(Validation<>));
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IBestSellerService, BestSellerService>();
+builder.Services.ServiceExtend();
+//builder.Services.AddScoped<IBrandMapper, BrandMapper>();
+//builder.Services.AddScoped<IBrandService, BrandService>();
+//builder.Services.AddScoped<ICategoryMapper, CategoryMapper>();
+//builder.Services.AddScoped<ICategoryService, CategoryService>();
+//builder.Services.AddScoped<IColorMapper, ColorMapper>();
+//builder.Services.AddScoped<IColorService, ColorService>();
+//builder.Services.AddScoped<ICustomerMapper, CustomerMapper>();
+//builder.Services.AddScoped<ICustomerService, CustomerService>();
+//builder.Services.AddScoped<IEmployeeMapper, EmployeeMapper>();
+//builder.Services.AddScoped<IEmployeeService , EmployeeService>();
+//builder.Services.AddScoped<IOrderDetailMapper, OrderDetailMapper>();
+//builder.Services.AddScoped<IOrderDetailService , OrderDetailService>();
+//builder.Services.AddScoped<IOrderMapper, OrderMapper>();
+//builder.Services.AddScoped<IOrderService, OrderService>();
+//builder.Services.AddScoped<IProductDetailMapper, ProductDetailMapper>();
+//builder.Services.AddScoped<IProductDetailService , ProductDetailService>();
+//builder.Services.AddScoped<IProductMapper, ProductMapper>();
+//builder.Services.AddScoped<IProductService, ProductService>();
+//builder.Services.AddScoped<IRoleMapper, RoleMapper>();
+//builder.Services.AddScoped<IRoleService, RoleService>();
+//builder.Services.AddScoped<ISaleMapper, SaleMapper>();
+//builder.Services.AddScoped<ISaleService, SaleService>();
+//builder.Services.AddScoped<ISizeMapper, SizeMapper>();
+//builder.Services.AddScoped<ISizeService, SizeService>();
+//builder.Services.AddScoped<IVoucherMapper, VoucherMapper>();
+//builder.Services.AddScoped<IVoucherService, VoucherService>();
+//builder.Services.AddScoped<IProductImageMapper, ProductImageMapper>();
+//builder.Services.AddScoped<IProductImageService, ProductImageService>();
+//builder.Services.AddScoped<ICartMapper, CartMapper>();
+//builder.Services.AddScoped<ICartService, CartService>();
+//builder.Services.AddScoped<ICustomerVoucherMapper, CustomerVoucherMapper>();
+//builder.Services.AddScoped<ICustomerVoucherService, CustomerVoucherService>();
+//builder.Services.AddScoped(typeof(Validation<>));
+//builder.Services.AddScoped<IEmailService, EmailService>();
+//builder.Services.AddScoped<IBestSellerService, BestSellerService>();
 
 //Chuy?n ??i enum 
 builder.Services.AddControllers()

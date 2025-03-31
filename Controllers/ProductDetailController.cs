@@ -50,6 +50,21 @@ namespace WebBanAoo.Controllers
                 return BadRequest(ex.ToString());
             }
         }
+        [HttpGet("getByPrice")]
+        [ProducesResponseType(typeof(IEnumerable<ProductDetail>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<IEnumerable<ProductDetail>>> GetByPrice()
+        {
+            try
+            {
+                var response = await _service.GetProductDetailbyPriceAsync();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
 
         [HttpGet("FindByName/{name}")]
         [ProducesResponseType(typeof(IEnumerable<ProductDetail>), (int)HttpStatusCode.OK)]

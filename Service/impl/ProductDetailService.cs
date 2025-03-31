@@ -107,6 +107,16 @@ namespace WebBanAoo.Service.impl
             return response;
             
         }
+        public async Task<IEnumerable<ProductDetailResponse>> GetProductDetailbyPriceAsync()
+        {
+            var co = await _context.ProductDetail.OrderByDescending(x => x.Price).ToListAsync();
+            if (co == null) throw new Exception($"Khong co ban ghi nao");
+
+            var response = _mapper.ListEntityToResponse(co);
+
+            return response;
+
+        }
 
         public async Task<bool> HardDeleteProductDetailAsync(int id)
         {

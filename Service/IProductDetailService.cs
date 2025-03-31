@@ -7,6 +7,7 @@ namespace WebBanAoo.Service
     public interface IProductDetailService
     {
         public Task<IEnumerable<ProductDetailResponse>> GetAllProductDetailAsync();
+        public Task<IEnumerable<ProductDetailResponse>> GetProductDetailbyPriceAsync();
         public Task<IEnumerable<ProductDetailResponse>> SearchProductDetailByKeyAsync(string key);
         public Task<ProductDetailResponse> UpdateProductDetailAsync(int id, ProductDetailUpdate update);
         public Task<ProductDetailResponse> CreateProductDetailAsync(ProductDetailCreate create);
